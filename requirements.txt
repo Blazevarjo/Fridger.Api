@@ -1,0 +1,35 @@
+# Core
+pytz==2021.1
+Django==3.2.7
+django-configurations==2.2
+gunicorn==20.1.0
+Pillow==8.3.2
+
+# For the persistence stores
+psycopg2-binary==2.9.1
+dj-database-url==0.5.0
+
+# Rest apis
+djangorestframework==3.12.4
+Markdown==3.3.4
+django-filter==2.4.0
+
+# Developer Tools
+ipdb==0.13.9
+ipython==7.27.0
+flake8==3.9.2
+black==21.9b0
+isort==5.9.3
+
+# Documentation
+drf-spectacular==0.18.2
+
+# Testing
+mock==4.0.3
+model-bakery==1.3.2
+coverage==5.5
+
+# Static and Media Storage
+django-storages==1.11.1
+boto3==1.18.41
+
