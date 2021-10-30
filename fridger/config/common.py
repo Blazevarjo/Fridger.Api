@@ -20,7 +20,11 @@ class Common(Configuration):
         "rest_framework",  # utilities for rest apis
         "rest_framework.authtoken",  # token authentication
         "django_filters",  # for filtering rest endpoints
+        "djoser"  # user authentication
         # Your apps
+        "fridger.fridges",
+        "fridger.products",
+        "fridger.shopping_lists",
         "fridger.users",
     )
 
@@ -163,6 +167,14 @@ class Common(Configuration):
     # Custom user app
     AUTH_USER_MODEL = "users.User"
 
+    # Djoser authentication settings
+    DJOSER = {
+        "SERIALIZERS": {
+            "user_create": "users.serializers.UserCreateSerializer",
+            "current_user": "user.serializers.UserSerializer",
+        }
+    }
+
     # Django Rest Framework
     REST_FRAMEWORK = {
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -175,8 +187,5 @@ class Common(Configuration):
         "DEFAULT_PERMISSION_CLASSES": [
             "rest_framework.permissions.AllowAny",
         ],
-        "DEFAULT_AUTHENTICATION_CLASSES": (
-            "rest_framework.authentication.SessionAuthentication",
-            "rest_framework.authentication.TokenAuthentication",
-        ),
+        "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
     }
