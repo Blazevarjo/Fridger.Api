@@ -33,3 +33,5 @@ coverage==5.5
 django-storages==1.11.1
 boto3==1.18.41
 
+# User authentication
+djoser==2.1.0
