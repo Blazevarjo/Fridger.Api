@@ -170,6 +170,7 @@ class Common(Configuration):
         "SEND_ACTIVATION_EMAIL": True,
         "SEND_CONFIRMATION_EMAIL": True,
         "ACTIVATION_URL": "activate/{uid}/{token}",
+        "PASSWORD_RESET_CONFIRM_URL": "password-reset/{uid}/{token}",
         "SERIALIZERS": {
             "current_user": "fridger.users.serializers.UserSerializer",
         },

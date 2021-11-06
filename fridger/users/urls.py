@@ -1,7 +1,7 @@
 from django.urls import include, path
 from djoser.views import UserViewSet
 
-from .views import activate_account
+from . import views
 
 urls = [
     path("", UserViewSet.as_view({"post": "create"})),
@@ -16,5 +16,6 @@ urls = [
 ]
 
 frontend_urls = [
-    path("activate/<slug:uid>/<slug:token>", activate_account, name="activate_account"),
+    path("activate/<slug:uid>/<slug:token>", views.activate_account, name="activate_account"),
+    path("password-reset/<slug:uid>/<slug:token>", views.password_reset, name="password_reset"),
 ]
