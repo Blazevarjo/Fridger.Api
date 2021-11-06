@@ -20,11 +20,12 @@ class Common(Configuration):
         "rest_framework",  # utilities for rest apis
         "rest_framework.authtoken",  # token authentication
         "django_filters",  # for filtering rest endpoints
-        "djoser"  # user authentication
+        "djoser",  # user authentication
+        "drf_spectacular",  # schema
         # Your apps
-        "fridger.fridges",
-        "fridger.products",
-        "fridger.shopping_lists",
+        # "fridger.fridges",
+        # "fridger.products",
+        # "fridger.shopping_lists",
         "fridger.users",
     )
 
@@ -43,9 +44,6 @@ class Common(Configuration):
     ROOT_URLCONF = "fridger.urls"
     SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
     WSGI_APPLICATION = "fridger.wsgi.application"
-
-    # Email
-    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
     ADMINS = (("Author", "janrube104@student.polsl.pl"),)
 
@@ -167,12 +165,14 @@ class Common(Configuration):
     # Custom user app
     AUTH_USER_MODEL = "users.User"
 
-    # Djoser authentication settings
+    # # Djoser authentication settings
     DJOSER = {
+        "SEND_ACTIVATION_EMAIL": True,
+        "SEND_CONFIRMATION_EMAIL": True,
+        "ACTIVATION_URL": "activate/{uid}/{token}",
         "SERIALIZERS": {
-            "user_create": "users.serializers.UserCreateSerializer",
-            "current_user": "user.serializers.UserSerializer",
-        }
+            "current_user": "fridger.users.serializers.UserSerializer",
+        },
     }
 
     # Django Rest Framework
@@ -188,4 +188,5 @@ class Common(Configuration):
             "rest_framework.permissions.AllowAny",
         ],
         "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
+        "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     }

@@ -1,8 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
-from fridger.users.models import User
 from fridger.utils.enums import Ownership
 from fridger.utils.models import BaseModel
+
+User = get_user_model()
 
 
 class Fridge(BaseModel):
