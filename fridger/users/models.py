@@ -6,9 +6,13 @@ from fridger.utils.models import BaseModel
 from .managers import CustomUserManager, FriendQuerySet
 
 
+def avatar_path(instance, filename):
+    return f"avatar-{instance.id}"
+
+
 class User(AbstractUser, BaseModel):
     email = models.EmailField(unique=True)
-    avatar = models.ImageField(blank=True)
+    avatar = models.ImageField(blank=True, upload_to=avatar_path)
     can_use_real_name = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
