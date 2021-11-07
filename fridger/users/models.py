@@ -12,11 +12,12 @@ def avatar_path(instance, filename):
 
 class User(AbstractUser, BaseModel):
     email = models.EmailField(unique=True)
+    username = models.CharField(max_length=40, unique=True, blank=True, null=True)
     avatar = models.ImageField(blank=True, upload_to=avatar_path)
     can_use_real_name = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username"]
+    REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
 
