@@ -17,7 +17,7 @@ class User(AbstractUser, BaseModel):
     can_use_real_name = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ["username"]
 
     objects = CustomUserManager()
 
