@@ -1,0 +1,37 @@
+<div>
+    <button id='activate'>Activate</button>
+    <h1 id='text'></h1>
+</div>
+
+<script>
+    const button = document.getElementById('activate');
+    const text = document.getElementById('text');
+
+    const data = {
+        uid: '{{uid}}',
+        token: '{{token}}'
+    }
+    button.onclick = () => {
+        fetch('/api/v1/auth/users/activate/', {
+            method: "POST",
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+
+        }).then((response) => {
+            console.log(response);
+            if (response.ok) {
+                text.innerHTML= 'Account activated'
+            } else {
+                text.innerHTML = 'Error occured'
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            text.innerHTML = 'Error occured'
+        })
+        button.remove()
+    }
+    
+</script>

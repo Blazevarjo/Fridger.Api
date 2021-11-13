@@ -1,4 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
+from django.db import models
+from django.db.models import Q
 
 
 class CustomUserManager(BaseUserManager):
@@ -22,3 +24,8 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
         return self.create_user(email, password, **extra_fields)
+
+
+class FriendQuerySet(models.QuerySet):
+    def user_friends(self, user):
+        return self.filter(Q(friend_1=user) | Q(friend_2=user))
