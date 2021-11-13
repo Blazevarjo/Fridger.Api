@@ -1,5 +1,5 @@
-from django.urls import include, path
-from djoser.views import UserViewSet
+from django.urls import path
+from djoser.views import TokenCreateView, TokenDestroyView, UserViewSet
 
 from . import views
 
@@ -12,7 +12,8 @@ urls = [
     path("activate/", UserViewSet.as_view({"post": "activation"})),
     path("reset_password/", UserViewSet.as_view({"post": "reset_password"})),
     path("reset_password_confirm/", UserViewSet.as_view({"post": "reset_password_confirm"})),
-    path("", include("djoser.urls.authtoken")),
+    path("login/", TokenCreateView.as_view()),
+    path("logout/", TokenDestroyView.as_view()),
 ]
 
 frontend_urls = [
