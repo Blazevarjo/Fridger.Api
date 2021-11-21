@@ -47,7 +47,7 @@ class Common(Configuration):
 
     ADMINS = (("Author", "janrube104@student.polsl.pl"),)
 
-    database_host = os.getenv("CI", "postgres")
+    database_host = "127.0.0.1" if os.getenv("CI") else "postgres"
     # Postgres
     DATABASES = {
         "default": dj_database_url.config(
