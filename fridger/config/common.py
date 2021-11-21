@@ -47,10 +47,11 @@ class Common(Configuration):
 
     ADMINS = (("Author", "janrube104@student.polsl.pl"),)
 
+    database_host = os.getenv("CI", "postgres")
     # Postgres
     DATABASES = {
         "default": dj_database_url.config(
-            default="postgres://postgres:@postgres:5432/postgres",
+            default=f"postgres://postgres:@{database_host}:5432/postgres",
             conn_max_age=int(os.getenv("POSTGRES_CONN_MAX_AGE", 600)),
         )
     }
