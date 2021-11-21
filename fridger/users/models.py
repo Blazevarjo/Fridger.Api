@@ -32,3 +32,6 @@ class Friend(BaseModel):
     is_accepted = models.BooleanField(default=False)
 
     objects = FriendQuerySet.as_manager()
+
+    def __str__(self) -> str:
+        return f"{self.friend_1} - {self.friend_2}"
