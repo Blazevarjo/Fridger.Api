@@ -9,7 +9,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from fridger.users.urls import frontend_urls
+from fridger.users.urls import friends_router, frontend_urls
 from fridger.users.urls import urls as users_urls
 
 v1_urls = [
@@ -19,6 +19,8 @@ v1_urls = [
     path("schema/swagger-ui/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
+
+v1_urls += friends_router.urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),

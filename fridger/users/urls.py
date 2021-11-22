@@ -1,7 +1,11 @@
 from django.urls import path
 from djoser.views import TokenCreateView, TokenDestroyView, UserViewSet
+from rest_framework.routers import DefaultRouter
 
 from . import views
+
+friends_router = DefaultRouter()
+friends_router.register("friends", views.FriendViewSet, basename="friend")
 
 urls = [
     path("", UserViewSet.as_view({"post": "create"})),
