@@ -42,6 +42,9 @@ class Friend(BaseModel):
         self.is_accepted = True
         self.save()
 
+    def is_in_friendship(self, current_user) -> bool:
+        return current_user in [self.friend_1, self.friend_2]
+
     def get_friend(self, current_user) -> User:
         if current_user == self.friend_1:
             return self.friend_2

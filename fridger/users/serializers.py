@@ -56,7 +56,7 @@ class FriendSerializer(serializers.ModelSerializer):
         except User.DoesNotExist:
             raise serializers.ValidationError({"friend_to_add": f"User '{friend_2_username}' does not exist."})
 
-        if Friend.objects.is_friend(friend_1, friend_2):
+        if Friend.objects.are_friends(friend_1, friend_2):
             raise serializers.ValidationError(f"You are already friends with user '{friend_2_username}'")
 
         return attrs

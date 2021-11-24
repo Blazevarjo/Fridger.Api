@@ -33,20 +33,34 @@ class TestFriendsModels:
     def test_users_are_friends_1(self):
         baker.make("users.Friend", friend_1=self.test_user_1, friend_2=self.test_user_2)
 
-        is_friend = Friend.objects.is_friend(self.test_user_1, self.test_user_2)
+        are_friends = Friend.objects.are_friends(self.test_user_1, self.test_user_2)
 
-        assert is_friend
+        assert are_friends
 
     def test_users_are_friends_2(self):
         baker.make("users.Friend", friend_2=self.test_user_1, friend_1=self.test_user_2)
 
-        is_friend = Friend.objects.is_friend(self.test_user_1, self.test_user_2)
+        are_friends = Friend.objects.are_friends(self.test_user_1, self.test_user_2)
 
-        assert is_friend
+        assert are_friends
 
     def test_users_are_no_friends(self):
         baker.make("users.Friend", friend_1=self.test_user_1, friend_2=self.test_user)
 
-        is_friend = Friend.objects.is_friend(self.test_user_1, self.test_user_2)
+        are_friends = Friend.objects.are_friends(self.test_user_1, self.test_user_2)
 
-        assert not is_friend
+        assert not are_friends
+
+    def test_user_is_in_friendship(self):
+        friend = baker.make("users.Friend", friend_1=self.test_user_1, friend_2=self.test_user_2)
+
+        is_in_friendship = friend.is_in_friendship(self.test_user_2)
+
+        assert is_in_friendship
+
+    def test_user_is_not_in_friendship(self):
+        friend = baker.make("users.Friend", friend_1=self.test_user_1, friend_2=self.test_user_2)
+
+        is_in_friendship = friend.is_in_friendship(self.test_user)
+
+        assert not is_in_friendship

@@ -30,7 +30,7 @@ class FriendQuerySet(models.QuerySet):
     def user_friends(self, user):
         return self.filter(Q(friend_1=user) | Q(friend_2=user))
 
-    def is_friend(self, user_1, user_2):
+    def are_friends(self, user_1, user_2):
         return self.filter(
             Q(Q(friend_1=user_1) & Q(friend_2=user_2)) | Q(Q(friend_1=user_2) & Q(friend_2=user_1))
         ).exists()
