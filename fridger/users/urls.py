@@ -1,24 +1,31 @@
-from django.urls import path
+from django.urls import include, path
 from djoser.views import TokenCreateView, TokenDestroyView, UserViewSet
 from rest_framework.routers import DefaultRouter
 
 from . import views
 
-friends_router = DefaultRouter()
-friends_router.register("friends", views.FriendViewSet, basename="friend")
+router = DefaultRouter(trailing_slash=False)
+router.register("friends", views.FriendViewSet, basename="friend")
+router.register("users", views.UserDetailViewSet, basename="user")
 
-urls = [
+auth_urls = [
     path("", UserViewSet.as_view({"post": "create"})),
     path(
-        "me/",
+        "me",
         UserViewSet.as_view({"get": "me", "put": "me", "patch": "me", "delete": "me"}),
     ),
-    path("activate/", UserViewSet.as_view({"post": "activation"})),
-    path("reset_password/", UserViewSet.as_view({"post": "reset_password"})),
-    path("reset_password_confirm/", UserViewSet.as_view({"post": "reset_password_confirm"})),
-    path("login/", TokenCreateView.as_view()),
-    path("logout/", TokenDestroyView.as_view()),
+    path("activate", UserViewSet.as_view({"post": "activation"})),
+    path("reset_password", UserViewSet.as_view({"post": "reset_password"})),
+    path("reset_password_confirm", UserViewSet.as_view({"post": "reset_password_confirm"})),
+    path("login", TokenCreateView.as_view()),
+    path("logout", TokenDestroyView.as_view()),
 ]
+
+api_urls = [
+    path("auth/users/", include(auth_urls)),
+]
+
+api_urls += router.urls
 
 frontend_urls = [
     path("activate/<slug:uid>/<slug:token>", views.activate_account, name="activate_account"),

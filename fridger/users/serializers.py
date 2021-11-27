@@ -7,14 +7,14 @@ from .models import Friend, User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "email", "username", "first_name", "last_name", "avatar", "can_use_real_name")
+        fields = ("id", "email", "username", "first_name", "last_name", "avatar")
         read_only_fields = ("email",)
 
 
 class BasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("username", "first_name", "last_name", "avatar", "can_use_real_name")
+        fields = ("username", "first_name", "last_name", "avatar")
 
 
 class CreateFriendSerializer(serializers.Serializer):
@@ -23,7 +23,7 @@ class CreateFriendSerializer(serializers.Serializer):
 
 class FriendSerializer(serializers.ModelSerializer):
     friend = serializers.SerializerMethodField()
-    friend_to_add = serializers.CharField(write_only=True)
+    friend_to_add = serializers.UUIDField(write_only=True)
 
     class Meta:
         model = Friend
@@ -48,15 +48,15 @@ class FriendSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         friend_1 = self.context.get("request").user
-        friend_2_username = attrs.pop("friend_to_add")
+        friend_2_id = attrs.pop("friend_to_add")
 
         try:
-            friend_2 = User.objects.get(username=friend_2_username)
+            friend_2 = User.objects.get(id=friend_2_id)
             attrs["friend_2"] = friend_2
         except User.DoesNotExist:
-            raise serializers.ValidationError({"friend_to_add": f"User '{friend_2_username}' does not exist."})
+            raise serializers.ValidationError({"friend_to_add": f"User '{friend_2_id}' does not exist."})
 
         if Friend.objects.are_friends(friend_1, friend_2):
-            raise serializers.ValidationError(f"You are already friends with user '{friend_2_username}'")
+            raise serializers.ValidationError(f"You are already friends with user '{friend_2_id}'")
 
         return attrs

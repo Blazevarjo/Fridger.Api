@@ -1,13 +1,12 @@
 from django.shortcuts import render
-from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from fridger.users.models import Friend
+from fridger.users.models import Friend, User
 from fridger.users.permissions import IsFriendRequestReceiver, IsOneOfFriend
-from fridger.users.serializers import FriendSerializer
+from fridger.users.serializers import FriendSerializer, UserSerializer
 
 
 def activate_account(request, uid, token):
@@ -18,10 +17,21 @@ def password_reset(request, uid, token):
     return render(request, "password_reset.html", {"uid": uid, "token": token})
 
 
+class UserDetailViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    lookup_field = "username"
+
+    def retrieve(self, request, *args, **kwargs):
+        """Get user by username."""
+        return super().retrieve(request, *args, **kwargs)
+
+
 class FriendViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     serializer_class = FriendSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["is_accepted"]
+    filterset_fields = [
+        "is_accepted",
+    ]
     queryset = Friend.objects.none()
 
     def get_permissions(self):
@@ -38,29 +48,21 @@ class FriendViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Destr
         serializer.save(friend_1=self.request.user)
 
     def list(self, request, *args, **kwargs):
-        """
-        Friends of the currently logged in user
-        """
+        """Friends of the currently logged in user."""
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        """
-        Send friend request to user with given username
-        """
+        """Send friend request to user with given username."""
         return super().create(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        """
-        Remove friend or deny friend request
-        """
+        """Remove friend or deny friend request."""
         return super().destroy(request, *args, **kwargs)
 
     @extend_schema(request=None)
     @action(detail=True, methods=["post"], permission_classes=[IsFriendRequestReceiver])
     def accept(self, request, pk=None):
-        """
-        Accept friend request
-        """
+        """Accept friend request."""
         friend = self.get_object()
         friend.accept()
         serializer = self.get_serializer(friend)

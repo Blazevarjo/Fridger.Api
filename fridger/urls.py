@@ -9,18 +9,17 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from fridger.users.urls import friends_router, frontend_urls
-from fridger.users.urls import urls as users_urls
+from fridger.users.urls import api_urls as users_urls
+from fridger.users.urls import frontend_urls
 
 v1_urls = [
-    path("auth/users/", include(users_urls)),
+    path("", include(users_urls)),
     # Documentation
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path("schema/swagger-ui/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
 
-v1_urls += friends_router.urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
