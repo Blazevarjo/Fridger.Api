@@ -1,9 +1,11 @@
 from django.shortcuts import render
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from fridger.users.models import Friend
 from fridger.users.permissions import IsFriendRequestReceiver, IsOneOfFriend
 from fridger.users.serializers import FriendSerializer
 
@@ -18,6 +20,9 @@ def password_reset(request, uid, token):
 
 class FriendViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     serializer_class = FriendSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["is_accepted"]
+    queryset = Friend.objects.none()
 
     def get_permissions(self):
         permission_classes = self.permission_classes
