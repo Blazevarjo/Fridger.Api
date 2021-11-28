@@ -51,5 +51,8 @@ class Friend(BaseModel):
             return self.friend_2
         return self.friend_1
 
+    def is_friend_creator(self, current_user) -> bool:
+        return self.friend_1 == current_user
+
     def __str__(self) -> str:
         return f"{self.friend_1} - {self.friend_2}"

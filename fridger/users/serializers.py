@@ -23,6 +23,7 @@ class CreateFriendSerializer(serializers.Serializer):
 
 class FriendSerializer(serializers.ModelSerializer):
     friend = serializers.SerializerMethodField()
+    is_my_request = serializers.SerializerMethodField()
     friend_to_add = serializers.UUIDField(write_only=True)
 
     class Meta:
@@ -33,9 +34,11 @@ class FriendSerializer(serializers.ModelSerializer):
             "created_at",
             "is_accepted",
             "friend_to_add",
+            "is_my_request",
         )
         read_only_fields = (
             "friend",
+            "is_my_request",
             "created_at",
             "is_accepted",
         )
@@ -45,6 +48,10 @@ class FriendSerializer(serializers.ModelSerializer):
         user = self.context.get("request").user
         friend = obj.get_friend(user)
         return BasicUserSerializer(friend).data
+
+    def get_is_my_request(self, obj) -> bool:
+        user = self.context.get("request").user
+        return obj.is_friend_creator(user)
 
     def validate(self, attrs):
         friend_1 = self.context.get("request").user
