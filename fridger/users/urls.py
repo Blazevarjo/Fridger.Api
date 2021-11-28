@@ -14,9 +14,10 @@ auth_urls = [
         "me",
         UserViewSet.as_view({"get": "me", "put": "me", "patch": "me", "delete": "me"}),
     ),
+    path("me/change-password", UserViewSet.as_view({"post": "set_password"})),
     path("activate", UserViewSet.as_view({"post": "activation"})),
-    path("reset_password", UserViewSet.as_view({"post": "reset_password"})),
-    path("reset_password_confirm", UserViewSet.as_view({"post": "reset_password_confirm"})),
+    path("reset-password", UserViewSet.as_view({"post": "reset_password"})),
+    path("reset-password-confirm", UserViewSet.as_view({"post": "reset_password_confirm"})),
     path("login", TokenCreateView.as_view()),
     path("logout", TokenDestroyView.as_view()),
 ]
