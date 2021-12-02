@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Ownership(models.IntegerChoices):
+class UserPermission(models.IntegerChoices):
     ADMIN = 1
     WRITE = 2
     READ = 3
@@ -18,8 +18,9 @@ class QuantityType(models.IntegerChoices):
 class FridgeProductStatus(models.IntegerChoices):
     UNUSED = 1
     USED = 2
-    WASTER = 3
+    WASTED = 3
     UNTRACKED = 4
+    UNTRACKED_USED = 5
 
 
 class ShoppingListProductStatus(models.IntegerChoices):
