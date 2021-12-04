@@ -20,7 +20,6 @@ class FridgeProductStatus(models.IntegerChoices):
     USED = 2
     WASTED = 3
     UNTRACKED = 4
-    UNTRACKED_USED = 5
 
 
 class ShoppingListProductStatus(models.IntegerChoices):

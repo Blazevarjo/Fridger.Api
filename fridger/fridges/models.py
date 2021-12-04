@@ -15,13 +15,17 @@ class Fridge(BaseModel):
     objects = FridgeQuerySet.as_manager()
 
     @property
-    def shared_with_count(self):
+    def shared_with_count(self) -> int:
         # reduce by one because of the owner
         return self.fridge_ownership.count() - 1
 
     @property
-    def products_count(self):
+    def products_count(self) -> int:
         return self.fridge_product.filter(is_available=True).count()
+
+    @property
+    def products(self):
+        return self.fridge_product
 
     def __str__(self) -> str:
         return self.name
