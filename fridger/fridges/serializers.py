@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from fridger.fridges.models import Fridge, FridgeOwnership
 from fridger.products.serializers import ListFridgeProductSerializer
+from fridger.users.serializers import BasicUserSerializer
 from fridger.utils.enums import UserPermission
 
 
@@ -40,3 +41,18 @@ class FridgeDetailSerializer(serializers.ModelSerializer):
             "products",
         ]
         read_only_fields = fields
+
+
+class FridgeOwnershipSerializer(serializers.ModelSerializer):
+    user = BasicUserSerializer()
+
+    class Meta:
+        model = FridgeOwnership
+        fields = ["id", "user", "fridge", "permission"]
+        read_only_fields = fields
+
+
+class CreateFridgeOwnershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FridgeOwnership
+        fields = ["id", "user", "fridge", "permission"]

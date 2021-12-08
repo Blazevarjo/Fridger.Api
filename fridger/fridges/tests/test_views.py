@@ -6,7 +6,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from fridger.fridges.models import FridgeOwnership
-from fridger.utils.enums import FridgeProductStatus
+from fridger.utils.enums import FridgeProductStatus, UserPermission
 
 
 @pytest.mark.django_db
@@ -81,3 +81,74 @@ class TestFridgesViews:
         assert json_response["products_count"] == 1
         assert json_response["products"][0]["quantity_base"] == Decimal(12)
         assert json_response["products"][0]["quantity_left"] == Decimal(9)
+
+    def test_list_fridge_ownerships(self):
+        client = APIClient()
+        client.force_authenticate(self.test_user)
+        fridge = baker.make("fridges.Fridge")
+        baker.make("fridges.FridgeOwnership", fridge=fridge, user=self.test_user)
+        baker.make("fridges.FridgeOwnership", fridge=fridge)
+        baker.make("fridges.FridgeOwnership")
+        url = reverse("fridge-ownerships", args=[fridge.id])
+
+        response = client.get(url)
+        json_response = response.json()
+
+        assert response.status_code == 200
+        assert len(json_response) == 2
+
+
+@pytest.mark.django_db
+class TestFridgeOwnershipsViews:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.test_user = baker.make("users.User")
+        self.client = APIClient()
+        self.client.force_authenticate(self.test_user)
+
+    def _get_detail_url(self, id):
+        return reverse("fridge-ownership-detail", args=[id])
+
+    def test_create_ownership(self):
+        url = reverse("fridge-ownership-list")
+        fridge = baker.make("fridges.Fridge")
+
+        data = {
+            "user": str(self.test_user.id),
+            "fridge": str(fridge.id),
+            "permission": UserPermission.READ,
+        }
+        response = self.client.post(url, data=data)
+        response_data = response.json()
+        response_id = response_data.pop("id")
+
+        assert response.status_code == 201
+        assert response_id
+        assert response_data == data
+        assert FridgeOwnership.objects.count() == 1
+
+    def test_update_ownership(self):
+        fridge_ownership = baker.make("fridges.FridgeOwnership", user=self.test_user)
+        test_put_user = baker.make("users.User")
+
+        data = {
+            "id": str(fridge_ownership.id),
+            "user": str(test_put_user.id),
+            "fridge": str(fridge_ownership.fridge.id),
+            "permission": UserPermission.READ,
+        }
+
+        response = self.client.put(self._get_detail_url(fridge_ownership.id), data=data)
+        response_data = response.json()
+
+        assert response.status_code == 200
+        assert response_data == data
+        assert FridgeOwnership.objects.count() == 1
+
+    def test_delete_ownership(self):
+        fridge_ownership = baker.make("fridges.FridgeOwnership", user=self.test_user)
+
+        response = self.client.delete(self._get_detail_url(fridge_ownership.id))
+
+        assert response.status_code == 204
+        assert not FridgeOwnership.objects.filter(id=fridge_ownership.id).exists()

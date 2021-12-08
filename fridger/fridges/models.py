@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext as _
 
-from fridger.fridges.managers import FridgeQuerySet
+from fridger.fridges.managers import FridgeOwnershipsQuerySet, FridgeQuerySet
 from fridger.utils.enums import UserPermission
 from fridger.utils.models import BaseModel
 
@@ -37,6 +37,8 @@ class FridgeOwnership(BaseModel):
     permission = models.CharField(
         _("User permission to fridger"), choices=UserPermission.choices, default=UserPermission.READ, max_length=5
     )
+
+    objects = FridgeOwnershipsQuerySet.as_manager()
 
     def __str__(self) -> str:
         return f"{self.fridge.name} - {self.user.email}"
