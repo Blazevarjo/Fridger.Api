@@ -26,7 +26,7 @@ class FridgeProduct(BaseModel):
 
     fridge = models.ForeignKey(Fridge, related_name="fridge_product", on_delete=models.CASCADE)
     expiration_date = models.DateField(blank=True, null=True)
-    quantity_type = models.IntegerField(choices=QuantityType.choices)
+    quantity_type = models.CharField(choices=QuantityType.choices, max_length=5)
     is_available = models.BooleanField(default=True)
 
     @property
@@ -53,7 +53,7 @@ class FridgeProduct(BaseModel):
 class FridgeProductHistory(BaseModel):
     product = models.ForeignKey(FridgeProduct, related_name="fridge_product_history", on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, related_name="fridge_product_history", on_delete=models.SET_NULL, null=True)
-    status = models.IntegerField(choices=FridgeProductStatus.choices, default=FridgeProductStatus.UNUSED)
+    status = models.CharField(choices=FridgeProductStatus.choices, default=FridgeProductStatus.UNUSED, max_length=9)
     created_at = models.DateTimeField(auto_now_add=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
     quantity = models.DecimalField(max_digits=10, decimal_places=3)
@@ -67,6 +67,13 @@ class FridgeProductHistory(BaseModel):
         product.save()
         return instance
 
+    def delete(self, *args, **kwargs):
+        instance = super().delete(*args, **kwargs)
+        product = self.product
+        product.is_available = product.quantity_left > 0
+        product.save()
+        return instance
+
 
 class ShoppingListProduct(BaseModel):
     name = models.CharField(max_length=60)
@@ -74,7 +81,7 @@ class ShoppingListProduct(BaseModel):
     image = models.ImageField(blank=True)
 
     shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_product", on_delete=models.CASCADE)
-    quantity_type = models.IntegerField(choices=QuantityType.choices)
+    quantity_type = models.CharField(choices=QuantityType.choices, max_length=5)
 
     @property
     def quantity_base(self) -> Decimal:
@@ -100,7 +107,9 @@ class ShoppingListProductHistory(BaseModel):
     shopping_list = models.ForeignKey(
         ShoppingList, related_name="shopping_list_product_history", on_delete=models.CASCADE
     )
-    status = models.IntegerField(choices=ShoppingListProductStatus.choices, default=ShoppingListProductStatus.CREATOR)
+    status = models.CharField(
+        choices=ShoppingListProductStatus.choices, default=ShoppingListProductStatus.CREATOR, max_length=7
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
     qauntity = models.DecimalField(max_digits=10, decimal_places=3)

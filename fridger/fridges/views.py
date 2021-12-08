@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
 from fridger.fridges.models import Fridge
-from fridger.fridges.serializers import FridgeSerializer
+from fridger.fridges.serializers import FridgeDetailSerializer, FridgeSerializer
 
 
 class FridgeViewSet(viewsets.ModelViewSet):
@@ -14,3 +14,7 @@ class FridgeViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Fridge.objects.user_fridges(user)
 
+    def get_serializer_class(self):
+        if self.action in "retrieve":
+            return FridgeDetailSerializer
+        return super().get_serializer_class()

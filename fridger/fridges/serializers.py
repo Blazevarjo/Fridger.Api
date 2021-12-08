@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from fridger.fridges.models import Fridge
+from fridger.fridges.models import Fridge, FridgeOwnership
 from fridger.products.serializers import ListFridgeProductSerializer
+from fridger.utils.enums import UserPermission
 
 
 class FridgeSerializer(serializers.ModelSerializer):
@@ -13,11 +14,17 @@ class FridgeSerializer(serializers.ModelSerializer):
             "shared_with_count",
             "products_count",
         ]
-        read_only_fields = ["id", "name"]
+        read_only_fields = [
+            "id",
+            "shared_with_count",
+            "products_count",
+        ]
 
     def create(self, validated_data):
         user = self.context.get("request").user
-        return Fridge.objects.create_with_permission(user, **validated_data)
+        fridge = Fridge.objects.create(**validated_data)
+        FridgeOwnership.objects.create(user=user, fridge=fridge, permission=UserPermission.ADMIN)
+        return fridge
 
 
 class FridgeDetailSerializer(serializers.ModelSerializer):

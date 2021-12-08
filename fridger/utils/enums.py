@@ -1,28 +1,29 @@
 from django.db import models
+from django.utils.translation import gettext as _
 
 
-class UserPermission(models.IntegerChoices):
-    ADMIN = 1
-    WRITE = 2
-    READ = 3
+class UserPermission(models.TextChoices):
+    ADMIN = "ADMIN", _("Admin")
+    WRITE = "WRITE", _("Write")
+    READ = "READ", _("Read")
 
 
-class QuantityType(models.IntegerChoices):
-    PIECE = 1
-    ML = 2
-    L = 3
-    G = 4
-    KG = 5
+class QuantityType(models.TextChoices):
+    PIECE = "PIECE", _("Piece")
+    ML = "ML", _("Ml")
+    L = "L", _("L")
+    G = "G", _("G")
+    KG = "KG", _("Kg")
 
 
-class FridgeProductStatus(models.IntegerChoices):
-    UNUSED = 1
-    USED = 2
-    WASTED = 3
-    UNTRACKED = 4
+class FridgeProductStatus(models.TextChoices):
+    UNUSED = "UNUSED", _("Unused")
+    USED = "USED", _("Used")
+    WASTED = "WASTED", _("Wasted")
+    UNTRACKED = "UNTRACKED", _("Untracked")
 
 
-class ShoppingListProductStatus(models.IntegerChoices):
-    CREATOR = 1
-    BUYER = 2
-    TAKER = 3
+class ShoppingListProductStatus(models.TextChoices):
+    CREATOR = "CREATOR", _("Creator")
+    BUYER = "BUYER", _("Buyer")
+    TAKER = "TAKER", _("Taker")

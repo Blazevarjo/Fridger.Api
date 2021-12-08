@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from fridger.products.models import FridgeProduct, FridgeProductHistory
@@ -8,15 +7,15 @@ class NestedFridgeProductHistory(serializers.ModelSerializer):
     class Meta:
         model = FridgeProductHistory
         fields = [
+            "id",
             "created_by",
             "status",
-            "price",
             "created_at",
+            "price",
             "quantity",
         ]
         read_only_fields = [
             "created_at",
-            "status",
         ]
 
 

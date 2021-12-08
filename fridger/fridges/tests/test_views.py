@@ -1,9 +1,12 @@
+from decimal import Decimal
+
 import pytest
 from model_bakery import baker
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from fridger.fridges.models import FridgeOwnership
+from fridger.utils.enums import FridgeProductStatus
 
 
 @pytest.mark.django_db
@@ -44,3 +47,37 @@ class TestFridgesViews:
         assert response.status_code == 200
         assert fridge_ownership_db == fridge_ownership
         assert FridgeOwnership.objects.count() == 1
+
+    def test_detail_fridge_product_stats(self):
+        client = APIClient()
+        client.force_authenticate(self.test_user)
+        fridge_ownership = baker.make("fridges.FridgeOwnership", user=self.test_user)
+        fridge = fridge_ownership.fridge
+        baker.make("fridges.FridgeOwnership", fridge=fridge)
+        product = baker.make("products.FridgeProduct", fridge=fridge)
+        baker.make(
+            "products.FridgeProductHistory",
+            product=product,
+            status=FridgeProductStatus.UNUSED,
+            quantity=Decimal(7),
+        )
+        baker.make(
+            "products.FridgeProductHistory",
+            product=product,
+            status=FridgeProductStatus.USED,
+            quantity=Decimal(3),
+        )
+        baker.make(
+            "products.FridgeProductHistory",
+            product=product,
+            status=FridgeProductStatus.UNUSED,
+            quantity=Decimal(5),
+        )
+
+        response = client.get(self._get_detail_url(fridge.id))
+        json_response = response.json()
+
+        assert json_response["shared_with_count"] == 1
+        assert json_response["products_count"] == 1
+        assert json_response["products"][0]["quantity_base"] == Decimal(12)
+        assert json_response["products"][0]["quantity_left"] == Decimal(9)

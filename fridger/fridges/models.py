@@ -25,7 +25,7 @@ class Fridge(BaseModel):
 
     @property
     def products(self):
-        return self.fridge_product
+        return self.fridge_product.filter(is_available=True)
 
     def __str__(self) -> str:
         return self.name
@@ -34,8 +34,8 @@ class Fridge(BaseModel):
 class FridgeOwnership(BaseModel):
     user = models.ForeignKey(User, related_name="fridge_ownership", on_delete=models.CASCADE)
     fridge = models.ForeignKey(Fridge, related_name="fridge_ownership", on_delete=models.CASCADE)
-    permission = models.IntegerField(
-        _("User permission to fridger"), choices=UserPermission.choices, default=UserPermission.READ
+    permission = models.CharField(
+        _("User permission to fridger"), choices=UserPermission.choices, default=UserPermission.READ, max_length=5
     )
 
     def __str__(self) -> str:
