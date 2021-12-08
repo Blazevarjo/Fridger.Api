@@ -28,7 +28,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(v1_urls)),
     path("", include(frontend_urls)),
-    # Debugging
-    path("__debug__/", include(debug_toolbar.urls)),
     re_path(r"^$", RedirectView.as_view(url=reverse_lazy("swagger-ui"), permanent=False)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += path("__debug__/", include(debug_toolbar.urls))

@@ -20,6 +20,7 @@ ipython==7.27.0
 flake8==3.9.2
 black==21.9b0
 isort==5.9.3
+django-debug-toolbar==3.2.2
 
 # Documentation
 drf-spectacular==0.18.2
