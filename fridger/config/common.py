@@ -22,15 +22,17 @@ class Common(Configuration):
         "django_filters",  # for filtering rest endpoints
         "djoser",  # user authentication
         "drf_spectacular",  # schema
+        "debug_toolbar",  # debug tool
         # Your apps
-        # "fridger.fridges",
-        # "fridger.products",
-        # "fridger.shopping_lists",
+        "fridger.fridges",
+        "fridger.products",
+        "fridger.shopping_lists",
         "fridger.users",
     )
 
     # https://docs.djangoproject.com/en/2.0/topics/http/middleware/
     MIDDLEWARE = (
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
         "django.middleware.security.SecurityMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
@@ -180,7 +182,7 @@ class Common(Configuration):
 
     # Django Rest Framework
     REST_FRAMEWORK = {
-        "PAGE_SIZE": int(os.getenv("DJANGO_PAGINATION_LIMIT", 10)),
+        # "PAGE_SIZE": int(os.getenv("DJANGO_PAGINATION_LIMIT", 10)),
         "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S%z",
         "DEFAULT_RENDERER_CLASSES": (
             "rest_framework.renderers.JSONRenderer",

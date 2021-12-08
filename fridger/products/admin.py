@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import FridgeProduct, FridgeProductHistory
+
+admin.site.register(FridgeProduct)
+admin.site.register(FridgeProductHistory)
