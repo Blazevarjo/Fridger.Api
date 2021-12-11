@@ -14,7 +14,10 @@ class ShoppingListSerializer(serializers.ModelSerializer):
             "taken_products_count",
             "bought_products_count",
         ]
-        read_only_fields = ["id", "name"]
+        read_only_fields = (
+            "id",
+            "name",
+        )
 
     def create(self, validated_data):
         user = self.context.get("request").user
@@ -25,12 +28,12 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 
 class ShoppingListDetailSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = [
+        fields = (
             "id",
             "name",
             "free_products_count",
             "taken_products_count",
             "bought_products_count",
             "products",
-        ]
+        )
         read_only_fields = fields

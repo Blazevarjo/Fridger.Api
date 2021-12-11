@@ -6,17 +6,15 @@ from fridger.products.models import FridgeProduct, FridgeProductHistory
 class NestedFridgeProductHistory(serializers.ModelSerializer):
     class Meta:
         model = FridgeProductHistory
-        fields = [
+        fields = (
             "id",
             "created_by",
             "status",
             "created_at",
             "price",
             "quantity",
-        ]
-        read_only_fields = [
-            "created_at",
-        ]
+        )
+        read_only_fields = ("created_at",)
 
 
 class CreateFridgeProductSerializer(serializers.ModelSerializer):
@@ -24,7 +22,7 @@ class CreateFridgeProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FridgeProduct
-        fields = [
+        fields = (
             "id",
             "name",
             "barcode",
@@ -33,7 +31,7 @@ class CreateFridgeProductSerializer(serializers.ModelSerializer):
             "expiration_date",
             "quantity_type",
             "product_history",
-        ]
+        )
 
     def create(self, validated_data):
         product_history = validated_data.pop("product_history")
@@ -45,7 +43,7 @@ class CreateFridgeProductSerializer(serializers.ModelSerializer):
 class ListFridgeProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = FridgeProduct
-        fields = [
+        fields = (
             "id",
             "name",
             "image",
@@ -53,5 +51,5 @@ class ListFridgeProductSerializer(serializers.ModelSerializer):
             "quantity_type",
             "quantity_base",
             "quantity_left",
-        ]
+        )
         read_only_fields = fields
