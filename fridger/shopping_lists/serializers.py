@@ -22,7 +22,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context.get("request").user
         shopping_list = ShoppingList.objects.create(user, **validated_data)
-        ShoppingListOwnership.objects.create(user=user, shopping_list=shopping_list, permission=UserPermission.ADMIN)
+        ShoppingListOwnership.objects.create(user=user, shopping_list=shopping_list, permission=UserPermission.CREATOR)
         return shopping_list
 
 

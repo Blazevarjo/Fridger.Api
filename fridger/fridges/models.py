@@ -35,7 +35,7 @@ class FridgeOwnership(BaseModel):
     user = models.ForeignKey(User, related_name="fridge_ownership", on_delete=models.CASCADE)
     fridge = models.ForeignKey(Fridge, related_name="fridge_ownership", on_delete=models.CASCADE)
     permission = models.CharField(
-        _("User permission to fridger"), choices=UserPermission.choices, default=UserPermission.READ, max_length=5
+        _("User permission to fridger"), choices=UserPermission.choices, default=UserPermission.READ, max_length=7
     )
 
     objects = FridgeOwnershipsQuerySet.as_manager()

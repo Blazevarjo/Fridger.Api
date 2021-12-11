@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 
 
 class UserPermission(models.TextChoices):
+    CREATOR = "CREATOR", _("Creator")
     ADMIN = "ADMIN", _("Admin")
     WRITE = "WRITE", _("Write")
     READ = "READ", _("Read")

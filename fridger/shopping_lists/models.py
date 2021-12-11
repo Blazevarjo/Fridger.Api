@@ -17,7 +17,7 @@ class ShoppingList(BaseModel):
 class ShoppingListOwnership(BaseModel):
     user = models.ForeignKey(User, related_name="shopping_list_ownership", on_delete=models.CASCADE)
     shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_ownership", on_delete=models.CASCADE)
-    ownership = models.IntegerField(choices=UserPermission.choices, default=UserPermission.READ)
+    ownership = models.CharField(choices=UserPermission.choices, default=UserPermission.READ, max_length=7)
 
 
 class ShoppingListStatus(BaseModel):

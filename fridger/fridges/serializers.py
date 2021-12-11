@@ -24,7 +24,7 @@ class FridgeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context.get("request").user
         fridge = Fridge.objects.create(**validated_data)
-        FridgeOwnership.objects.create(user=user, fridge=fridge, permission=UserPermission.ADMIN)
+        FridgeOwnership.objects.create(user=user, fridge=fridge, permission=UserPermission.CREATOR)
         return fridge
 
 
