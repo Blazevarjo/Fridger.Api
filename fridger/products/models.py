@@ -45,17 +45,12 @@ class FridgeProduct(BaseModel):
     def quantity_wasted(self) -> Decimal:
         return self.fridge_product_history.quantities()["quantity_wasted"] or Decimal(0)
 
-    @property
-    def sum_price(self) -> Decimal:
-        return self.fridge_product_history.price_sum()["price_sum"] or Decimal(0)
-
 
 class FridgeProductHistory(BaseModel):
     product = models.ForeignKey(FridgeProduct, related_name="fridge_product_history", on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, related_name="fridge_product_history", on_delete=models.SET_NULL, null=True)
     status = models.CharField(choices=FridgeProductStatus.choices, default=FridgeProductStatus.UNUSED, max_length=9)
     created_at = models.DateTimeField(auto_now_add=True)
-    price = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
     quantity = models.DecimalField(max_digits=10, decimal_places=3)
 
     objects = FridgeProductHistoryQuerySet.as_manager()

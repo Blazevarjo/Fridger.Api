@@ -32,6 +32,7 @@ class TestFridgesViews:
         assert response.status_code == 201
         assert len(fridge_ownerships) == 1
         assert str(fridge_ownership.fridge.id) == response.data["id"]
+        assert fridge_ownership.permission == UserPermission.CREATOR
 
     def test_update_fridge_do_not_create_ownership(self):
         client = APIClient()
@@ -129,16 +130,12 @@ class TestFridgeOwnershipsViews:
 
     def test_update_ownership(self):
         fridge_ownership = baker.make("fridges.FridgeOwnership", user=self.test_user)
-        test_put_user = baker.make("users.User")
 
         data = {
-            "id": str(fridge_ownership.id),
-            "user": str(test_put_user.id),
-            "fridge": str(fridge_ownership.fridge.id),
             "permission": UserPermission.READ,
         }
 
-        response = self.client.put(self._get_detail_url(fridge_ownership.id), data=data)
+        response = self.client.patch(self._get_detail_url(fridge_ownership.id), data=data)
         response_data = response.json()
 
         assert response.status_code == 200

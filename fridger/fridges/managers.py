@@ -8,5 +8,5 @@ class FridgeQuerySet(models.QuerySet):
 
 class FridgeOwnershipsQuerySet(models.QuerySet):
     def user_fridge_ownerships(self, user):
-        fridges_id = user.fridge_ownership.values_list("fridge__id", flat=True)
-        return self.filter(fridge__in=fridges_id)
+        fridges_ids = user.fridge_ownership.values_list("fridge__id", flat=True)
+        return self.filter(fridge__in=fridges_ids)

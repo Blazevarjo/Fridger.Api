@@ -11,7 +11,6 @@ class NestedFridgeProductHistory(serializers.ModelSerializer):
             "created_by",
             "status",
             "created_at",
-            "price",
             "quantity",
         )
         read_only_fields = ("created_at",)

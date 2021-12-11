@@ -43,7 +43,7 @@ class FridgeDetailSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class FridgeOwnershipSerializer(serializers.ModelSerializer):
+class ReadOnlyFridgeOwnershipSerializer(serializers.ModelSerializer):
     user = BasicUserSerializer()
 
     class Meta:

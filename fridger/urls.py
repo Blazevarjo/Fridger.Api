@@ -11,11 +11,13 @@ from drf_spectacular.views import (
 )
 
 from fridger.fridges.urls import api_urls as fridges_urls
+from fridger.shopping_lists.urls import api_urls as shopping_lists_urls
 from fridger.users.urls import api_urls as users_urls
 from fridger.users.urls import frontend_urls
 
 v1_urls = [
     path("", include(fridges_urls), name="fridge"),
+    path("", include(shopping_lists_urls), name="shopping_list"),
     path("", include(users_urls), name="user"),
     # Documentation
     path("schema/", SpectacularAPIView.as_view(), name="schema"),

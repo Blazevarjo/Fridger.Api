@@ -1,4 +1,4 @@
-from rest_framework import mixins, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -6,9 +6,9 @@ from fridger.fridges.models import Fridge, FridgeOwnership
 from fridger.fridges.serializers import (
     CreateFridgeOwnershipSerializer,
     FridgeDetailSerializer,
-    FridgeOwnershipSerializer,
     FridgeSerializer,
     PartialUpdateFridgeOwnershipSerializer,
+    ReadOnlyFridgeOwnershipSerializer,
 )
 
 
@@ -23,10 +23,10 @@ class FridgeViewSet(viewsets.ModelViewSet):
         return Fridge.objects.user_fridges(user)
 
     def get_serializer_class(self):
-        if self.action in "retrieve":
+        if self.action == "retrieve":
             return FridgeDetailSerializer
-        if self.action in "ownerships":
-            return FridgeOwnershipSerializer
+        if self.action == "ownerships":
+            return ReadOnlyFridgeOwnershipSerializer
         return super().get_serializer_class()
 
     @action(detail=True, methods=["get"])
@@ -38,10 +38,8 @@ class FridgeViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class FridgeOwnershipViewSet(
-    mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet
-):
-    http_method_names = ["post", "put", "patch", "delete"]
+class FridgeOwnershipViewSet(viewsets.ModelViewSet):
+    http_method_names = ["post", "patch", "delete"]
 
     queryset = FridgeOwnership.objects.none()
     serializer_class = CreateFridgeOwnershipSerializer

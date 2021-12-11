@@ -13,9 +13,6 @@ class FridgeProductHistoryQuerySet(models.QuerySet):
             quantity_wasted=Sum("quantity", filter=Q(status=FridgeProductStatus.WASTED)),
         )
 
-    def price_sum(self):
-        return self.aggregate(price_sum=Sum("price"))
-
 
 class ShoppingListProductHistoryQuerySet(models.QuerySet):
     def quantities(self):
