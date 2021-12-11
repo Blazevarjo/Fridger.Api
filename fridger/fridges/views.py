@@ -8,6 +8,7 @@ from fridger.fridges.serializers import (
     FridgeDetailSerializer,
     FridgeOwnershipSerializer,
     FridgeSerializer,
+    PartialUpdateFridgeOwnershipSerializer,
 )
 
 
@@ -40,10 +41,15 @@ class FridgeViewSet(viewsets.ModelViewSet):
 class FridgeOwnershipViewSet(
     mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet
 ):
-    http_method_names = ["post", "put", "delete"]
+    http_method_names = ["post", "put", "patch", "delete"]
 
     queryset = FridgeOwnership.objects.none()
     serializer_class = CreateFridgeOwnershipSerializer
+
+    def get_serializer_class(self):
+        if self.action == "partial_update":
+            return PartialUpdateFridgeOwnershipSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
         user = self.request.user

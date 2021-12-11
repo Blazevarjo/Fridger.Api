@@ -57,6 +57,12 @@ class FridgeOwnershipSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class PartialUpdateFridgeOwnershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FridgeOwnership
+        fields = ("permission",)
+
+
 class CreateFridgeOwnershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = FridgeOwnership
