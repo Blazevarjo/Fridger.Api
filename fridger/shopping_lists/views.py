@@ -2,8 +2,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from fridger.shopping_lists.models import ShoppingList, ShoppingListOwnership
-from fridger.shopping_lists.serializers import (
+from .models import ShoppingList, ShoppingListOwnership
+from .serializers import (
     CreateShoppingListOwnershipSerializer,
     PartialUpdateShoppingListOwnershipSerializer,
     ReadOnlyShoppingListOwnershipSerializer,

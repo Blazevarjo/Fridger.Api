@@ -4,9 +4,10 @@ from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from fridger.users.models import Friend, User
-from fridger.users.permissions import IsFriendRequestReceiver, IsOneOfFriend
-from fridger.users.serializers import FriendSerializer, UserSerializer
+from .filters import FriendFilter
+from .models import Friend, User
+from .permissions import IsFriendRequestReceiver, IsOneOfFriend
+from .serializers import FriendSerializer, UserSerializer
 
 
 def activate_account(request, uid, token):
@@ -29,9 +30,7 @@ class UserDetailViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
 class FriendViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     serializer_class = FriendSerializer
-    filterset_fields = [
-        "is_accepted",
-    ]
+    filterset_class = FriendFilter
     queryset = Friend.objects.none()
 
     def get_permissions(self):

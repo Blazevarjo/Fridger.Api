@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
-from fridger.shopping_lists.models import ShoppingList, ShoppingListOwnership
 from fridger.users.serializers import BasicUserSerializer
 from fridger.utils.enums import UserPermission
+
+from .models import ShoppingList, ShoppingListOwnership
 
 
 class ShoppingListSerializer(serializers.ModelSerializer):

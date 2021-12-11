@@ -1,12 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from fridger.shopping_lists.managers import (
-    ShoppingListOwnershipQuerySet,
-    ShoppingListQuerySet,
-)
 from fridger.utils.enums import UserPermission
 from fridger.utils.models import BaseModel
+
+from .managers import ShoppingListOwnershipQuerySet, ShoppingListQuerySet
 
 User = get_user_model()
 

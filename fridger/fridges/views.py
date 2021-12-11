@@ -2,8 +2,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from fridger.fridges.models import Fridge, FridgeOwnership
-from fridger.fridges.serializers import (
+from .models import Fridge, FridgeOwnership
+from .serializers import (
     CreateFridgeOwnershipSerializer,
     FridgeDetailSerializer,
     FridgeSerializer,
