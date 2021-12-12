@@ -13,7 +13,10 @@ class NestedFridgeProductHistory(serializers.ModelSerializer):
             "created_at",
             "quantity",
         )
-        read_only_fields = ("created_at",)
+        read_only_fields = (
+            "created_at",
+            "created_by",
+        )
 
 
 class CreateFridgeProductSerializer(serializers.ModelSerializer):
@@ -33,10 +36,23 @@ class CreateFridgeProductSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+        user = self.context["request"].user
         product_history = validated_data.pop("product_history")
         product = super().create(**validated_data)
-        FridgeProductHistory.objects.create(product=product, **product_history)
+        FridgeProductHistory.objects.create(product=product, created_by=user, **product_history)
         return product
+
+
+class UpdateFridgeProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FridgeProduct
+        fields = (
+            "id",
+            "name",
+            "barcode",
+            "image",
+            "expiration_date",
+        )
 
 
 class ListFridgeProductSerializer(serializers.ModelSerializer):
@@ -46,9 +62,47 @@ class ListFridgeProductSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "image",
+            "barcode",
             "expiration_date",
             "quantity_type",
             "quantity_base",
             "quantity_left",
         )
         read_only_fields = fields
+
+
+class CreateFridgeProductHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FridgeProductHistory
+        fields = (
+            "id",
+            "created_by",
+            "product",
+            "status",
+            "created_at",
+            "quantity",
+        )
+        read_only_fields = (
+            "id",
+            "created_at",
+            "created_by",
+        )
+
+
+class UpdateFridgeProductHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FridgeProductHistory
+        fields = (
+            "id",
+            "created_by",
+            "product",
+            "status",
+            "created_at",
+            "quantity",
+        )
+        read_only_fields = (
+            "id",
+            "created_at",
+            "created_by",
+            "product",
+        )

@@ -48,6 +48,7 @@ class ShoppingList(BaseModel):
 
 
 class ShoppingListFragment(BaseModel):
+    # shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_fragment", on_delete=models.CASCADE)
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     price = models.DecimalField(max_digits=9, decimal_places=2)
