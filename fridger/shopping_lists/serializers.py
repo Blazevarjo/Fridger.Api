@@ -6,21 +6,32 @@ from fridger.utils.enums import UserPermission
 from .models import ShoppingList, ShoppingListOwnership
 
 
+class PartialUpdateShoppingListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingList
+        fields = ("name",)
+
+
 class ShoppingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingList
-        fields = [
+        fields = (
             "id",
+            "fridge",
             "name",
             "free_products_count",
             "taken_products_count",
             "bought_products_count",
-        ]
+            "is_archived",
+            "is_shared",
+        )
         read_only_fields = (
             "id",
             "free_products_count",
             "taken_products_count",
             "bought_products_count",
+            "is_archived",
+            "is_shared",
         )
 
     def create(self, validated_data):
@@ -35,6 +46,8 @@ class ShoppingListDetailSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
+            "is_archived",
+            "is_shared",
             "free_products_count",
             "taken_products_count",
             "bought_products_count",

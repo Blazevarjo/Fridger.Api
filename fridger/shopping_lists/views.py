@@ -6,6 +6,7 @@ from .models import ShoppingList, ShoppingListOwnership
 from .serializers import (
     CreateShoppingListOwnershipSerializer,
     PartialUpdateShoppingListOwnershipSerializer,
+    PartialUpdateShoppingListSerializer,
     ReadOnlyShoppingListOwnershipSerializer,
     ShoppingListSerializer,
 )
@@ -16,6 +17,7 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
 
     queryset = ShoppingList.objects.none()
     serializer_class = ShoppingListSerializer
+    filterset_fields = ["is_archived"]
 
     def get_queryset(self):
         user = self.request.user
@@ -24,6 +26,8 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "retrieve":
             return ShoppingListSerializer
+        if self.action == "partial_update":
+            return PartialUpdateShoppingListSerializer
         if self.action == "ownerships":
             return ReadOnlyShoppingListOwnershipSerializer
         return super().get_serializer_class()
