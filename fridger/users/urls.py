@@ -12,7 +12,7 @@ auth_urls = [
     path("", UserViewSet.as_view({"post": "create"})),
     path(
         "me",
-        UserViewSet.as_view({"get": "me", "put": "me", "patch": "me", "delete": "me"}),
+        views.UpdateUserViewSet.as_view({"get": "me", "patch": "me", "delete": "me"}),
     ),
     path("me/change-password", UserViewSet.as_view({"post": "set_password"})),
     path("activate", UserViewSet.as_view({"post": "activation"})),

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from djoser.views import UserViewSet as DjoserUserViewSet
 from drf_spectacular.utils import extend_schema
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
@@ -16,6 +17,11 @@ def activate_account(request, uid, token):
 
 def password_reset(request, uid, token):
     return render(request, "password_reset.html", {"uid": uid, "token": token})
+
+
+class UpdateUserViewSet(DjoserUserViewSet):
+    def perform_update(self, serializer):
+        return super(viewsets.ModelViewSet, self).perform_update(serializer)
 
 
 class UserDetailViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
