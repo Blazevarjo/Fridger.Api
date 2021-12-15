@@ -38,7 +38,7 @@ class CreateFridgeProductSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         product_history = validated_data.pop("product_history")
-        product = super().create(**validated_data)
+        product = FridgeProduct.objects.create(**validated_data)
         FridgeProductHistory.objects.create(product=product, created_by=user, **product_history)
         return product
 

@@ -4,7 +4,6 @@ from fridger.products.models import FridgeProduct, FridgeProductHistory
 from fridger.products.serializers import (
     CreateFridgeProductHistorySerializer,
     CreateFridgeProductSerializer,
-    UpdateFridgeProductHistorySerializer,
     UpdateFridgeProductSerializer,
 )
 
@@ -22,14 +21,12 @@ class FridgeProductViewSet(viewsets.ModelViewSet):
 
 
 class FridgeProductHistoryViewSet(viewsets.ModelViewSet):
-    http_method_names = ("post", "patch", "delete")
+    http_method_names = ("post",)
     queryset = FridgeProductHistory.objects.all()
 
     def get_serializer_class(self):
         if self.action == "create":
             return CreateFridgeProductHistorySerializer
-        elif self.action == "partial_update":
-            return UpdateFridgeProductHistorySerializer
         return super().get_serializer_class()
 
     def perform_create(self, serializer):
