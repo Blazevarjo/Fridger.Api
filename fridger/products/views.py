@@ -23,11 +23,7 @@ class FridgeProductViewSet(viewsets.ModelViewSet):
 class FridgeProductHistoryViewSet(viewsets.ModelViewSet):
     http_method_names = ("post",)
     queryset = FridgeProductHistory.objects.all()
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            return CreateFridgeProductHistorySerializer
-        return super().get_serializer_class()
+    serializer_class = CreateFridgeProductHistorySerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

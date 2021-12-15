@@ -27,6 +27,7 @@ class CreateFridgeProductSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
+            "producer_name",
             "barcode",
             "image",
             "fridge",
@@ -49,6 +50,7 @@ class UpdateFridgeProductSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
+            "producer_name",
             "barcode",
             "image",
             "expiration_date",
@@ -61,6 +63,7 @@ class ListFridgeProductSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
+            "producer_name",
             "image",
             "barcode",
             "expiration_date",

@@ -20,6 +20,7 @@ class FridgeProduct(BaseModel):
     fridge = models.ForeignKey(Fridge, related_name="fridge_product", on_delete=models.CASCADE)
 
     name = models.CharField(max_length=60)
+    producer_name = models.CharField(max_length=60, blank=True)
     barcode = models.CharField(max_length=100, blank=True)
     image = models.URLField(blank=True)
 
