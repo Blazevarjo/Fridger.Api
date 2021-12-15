@@ -20,7 +20,7 @@ class NestedFridgeProductHistory(serializers.ModelSerializer):
 
 
 class CreateFridgeProductSerializer(serializers.ModelSerializer):
-    product_history = NestedFridgeProductHistory()
+    product_history = NestedFridgeProductHistory(write_only=True)
 
     class Meta:
         model = FridgeProduct

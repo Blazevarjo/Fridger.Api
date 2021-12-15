@@ -21,7 +21,7 @@ class FridgeProduct(BaseModel):
 
     name = models.CharField(max_length=60)
     barcode = models.CharField(max_length=100, blank=True)
-    image = models.ImageField(blank=True)
+    image = models.URLField(blank=True)
 
     expiration_date = models.DateField(blank=True, null=True)
     quantity_type = models.CharField(choices=QuantityType.choices, max_length=5)
