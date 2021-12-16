@@ -44,16 +44,25 @@ class CreateFridgeProductSerializer(serializers.ModelSerializer):
         return product
 
 
-class UpdateFridgeProductSerializer(serializers.ModelSerializer):
+class PartialUpdateFridgeProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = FridgeProduct
         fields = (
             "id",
             "name",
             "producer_name",
-            "barcode",
             "image",
+            "barcode",
             "expiration_date",
+            "quantity_type",
+            "quantity_base",
+            "quantity_left",
+        )
+        read_only_fields = (
+            "id",
+            "quantity_type",
+            "quantity_base",
+            "quantity_left",
         )
 
 

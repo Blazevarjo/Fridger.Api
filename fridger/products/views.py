@@ -7,12 +7,16 @@ from .serializers import (
     CreateFridgeProductHistorySerializer,
     CreateFridgeProductSerializer,
     ListFridgeProductSerializer,
-    UpdateFridgeProductSerializer,
+    PartialUpdateFridgeProductSerializer,
 )
 
 
 class FridgeProductViewSet(
-    mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
 ):
     http_method_names = ("get", "post", "patch", "delete")
     queryset = FridgeProduct.objects.all()
@@ -25,11 +29,16 @@ class FridgeProductViewSet(
         "expiration_date",
     ]
 
+    def filter_queryset(self, queryset):
+        if self.action != "list":
+            self.filterset_class = None
+        return super().filter_queryset(queryset)
+
     def get_serializer_class(self):
         if self.action == "create":
             return CreateFridgeProductSerializer
         elif self.action == "partial_update":
-            return UpdateFridgeProductSerializer
+            return PartialUpdateFridgeProductSerializer
         elif self.action == "list":
             return ListFridgeProductSerializer
         return super().get_serializer_class()
