@@ -1,6 +1,14 @@
 from rest_framework import serializers
 
-from fridger.products.models import FridgeProduct, FridgeProductHistory
+from fridger.products.models import (
+    FridgeProduct,
+    FridgeProductHistory,
+    ShoppingListProduct,
+)
+
+###################
+# FRIDGE PRODUCTS #
+###################
 
 
 class NestedFridgeProductHistory(serializers.ModelSerializer):
@@ -101,20 +109,72 @@ class CreateFridgeProductHistorySerializer(serializers.ModelSerializer):
         )
 
 
-class UpdateFridgeProductHistorySerializer(serializers.ModelSerializer):
+###########################
+# SHOPPING LISTS PRODUCTS #
+###########################
+
+
+class CreateShoppingListProductSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FridgeProductHistory
+        model = ShoppingListProduct
         fields = (
             "id",
-            "created_by",
-            "product",
-            "status",
+            "shopping_list",
             "created_at",
-            "quantity",
+            "created_by",
+            "status",
+            "name",
+            "barcode",
+            "image",
+            "price",
+            "quantity_type",
+            "qauntity",
         )
         read_only_fields = (
             "id",
             "created_at",
             "created_by",
-            "product",
         )
+
+
+class PartialUpdateShoppingListProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingListProduct
+        fields = (
+            "id",
+            "shopping_list",
+            "created_at",
+            "created_by",
+            "status",
+            "name",
+            "barcode",
+            "image",
+            "price",
+            "quantity_type",
+            "qauntity",
+        )
+        read_only_fields = (
+            "id",
+            "shopping_list",
+            "created_at",
+            "created_by",
+        )
+
+
+class ListShoppingListProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingListProduct
+        fields = (
+            "id",
+            "shopping_list",
+            "created_at",
+            "created_by",
+            "status",
+            "name",
+            "barcode",
+            "image",
+            "price",
+            "quantity_type",
+            "qauntity",
+        )
+        read_only_fields = fields

@@ -72,6 +72,7 @@ class FridgeProductHistory(BaseModel):
 
 class ShoppingListProduct(BaseModel):
     shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_product", on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, related_name="shopping_list_product", on_delete=models.SET_NULL, null=True)
 
     name = models.CharField(max_length=60)
     barcode = models.CharField(max_length=100, blank=True)

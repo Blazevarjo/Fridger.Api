@@ -1,14 +1,21 @@
 from django_filters import rest_framework as django_filters
 from rest_framework import filters, mixins, viewsets
 
-from .filters import FridgeProductFilter
-from .models import FridgeProduct, FridgeProductHistory
+from .filters import FridgeProductFilter, ShoppingListProductFilter
+from .models import FridgeProduct, FridgeProductHistory, ShoppingListProduct
 from .serializers import (
     CreateFridgeProductHistorySerializer,
     CreateFridgeProductSerializer,
+    CreateShoppingListProductSerializer,
     ListFridgeProductSerializer,
+    ListShoppingListProductSerializer,
     PartialUpdateFridgeProductSerializer,
+    PartialUpdateShoppingListProductSerializer,
 )
+
+###################
+# FRIDGE PRODUCTS #
+###################
 
 
 class FridgeProductViewSet(
@@ -48,6 +55,41 @@ class FridgeProductHistoryViewSet(viewsets.ModelViewSet):
     http_method_names = ("post",)
     queryset = FridgeProductHistory.objects.all()
     serializer_class = CreateFridgeProductHistorySerializer
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+###########################
+# SHOPPING LISTS PRODUCTS #
+###########################
+
+
+class ShoppingListProductViewSet(
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    http_method_names = ("get", "post", "patch", "delete")
+    queryset = ShoppingListProduct.objects.all()
+
+    filterset_class = ShoppingListProductFilter
+
+    def filter_queryset(self, queryset):
+        if self.action != "list":
+            self.filterset_class = None
+        return super().filter_queryset(queryset)
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CreateShoppingListProductSerializer
+        elif self.action == "partial_update":
+            return PartialUpdateShoppingListProductSerializer
+        elif self.action == "list":
+            return ListShoppingListProductSerializer
+        return super().get_serializer_class()
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
