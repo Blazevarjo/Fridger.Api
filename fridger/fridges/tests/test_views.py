@@ -80,8 +80,7 @@ class TestFridgesViews:
 
         assert json_response["shared_with_count"] == 1
         assert json_response["products_count"] == 1
-        assert json_response["products"][0]["quantity_base"] == Decimal(12)
-        assert json_response["products"][0]["quantity_left"] == Decimal(9)
+        assert json_response.get("my_ownership") is not None
 
     def test_list_fridge_ownerships(self):
         client = APIClient()
