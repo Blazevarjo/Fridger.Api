@@ -1,9 +1,10 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from fridger.fridges.models import Fridge, FridgeOwnership
-from fridger.products.serializers import ListFridgeProductSerializer
 from fridger.users.serializers import BasicUserSerializer
 from fridger.utils.enums import UserPermission
+
+from .models import Fridge, FridgeOwnership
 
 
 class FridgeSerializer(serializers.ModelSerializer):
@@ -22,14 +23,14 @@ class FridgeSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        user = self.context.get("request").user
+        user = self.context["request"].user
         fridge = Fridge.objects.create(**validated_data)
         FridgeOwnership.objects.create(user=user, fridge=fridge, permission=UserPermission.CREATOR)
         return fridge
 
 
 class FridgeDetailSerializer(serializers.ModelSerializer):
-    products = ListFridgeProductSerializer(many=True)
+    my_ownership = serializers.SerializerMethodField()
 
     class Meta:
         model = Fridge
@@ -38,9 +39,15 @@ class FridgeDetailSerializer(serializers.ModelSerializer):
             "name",
             "shared_with_count",
             "products_count",
-            "products",
+            "my_ownership",
         )
         read_only_fields = fields
+
+    @extend_schema_field(serializers.ChoiceField(choices=UserPermission.choices))
+    def get_my_ownership(self, obj):
+        user = self.context["request"].user
+        permission = obj.fridge_ownership.get(user=user).permission
+        return permission
 
 
 class ReadOnlyFridgeOwnershipSerializer(serializers.ModelSerializer):
