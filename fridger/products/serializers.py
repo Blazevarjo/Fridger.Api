@@ -1,10 +1,8 @@
 from rest_framework import serializers
 
-from fridger.products.models import (
-    FridgeProduct,
-    FridgeProductHistory,
-    ShoppingListProduct,
-)
+from fridger.users.serializers import BasicDisplayUserSerializer
+
+from .models import FridgeProduct, FridgeProductHistory, ShoppingListProduct
 
 ###################
 # FRIDGE PRODUCTS #
@@ -124,8 +122,6 @@ class CreateShoppingListProductSerializer(serializers.ModelSerializer):
             "created_by",
             "status",
             "name",
-            "barcode",
-            "image",
             "price",
             "quantity_type",
             "qauntity",
@@ -134,6 +130,7 @@ class CreateShoppingListProductSerializer(serializers.ModelSerializer):
             "id",
             "created_at",
             "created_by",
+            "status",
         )
 
 
@@ -147,8 +144,6 @@ class PartialUpdateShoppingListProductSerializer(serializers.ModelSerializer):
             "created_by",
             "status",
             "name",
-            "barcode",
-            "image",
             "price",
             "quantity_type",
             "qauntity",
@@ -161,18 +156,30 @@ class PartialUpdateShoppingListProductSerializer(serializers.ModelSerializer):
         )
 
 
-class ListShoppingListProductSerializer(serializers.ModelSerializer):
+class BasicListShoppingListProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingListProduct
         fields = (
             "id",
-            "shopping_list",
-            "created_at",
+            "status",
+            "name",
+            "price",
+            "quantity_type",
+            "qauntity",
+        )
+        read_only_fields = fields
+
+
+class ListShoppingListProductSerializer(serializers.ModelSerializer):
+    created_by = BasicDisplayUserSerializer()
+
+    class Meta:
+        model = ShoppingListProduct
+        fields = (
+            "id",
             "created_by",
             "status",
             "name",
-            "barcode",
-            "image",
             "price",
             "quantity_type",
             "qauntity",

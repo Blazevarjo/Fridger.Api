@@ -4,6 +4,16 @@ from rest_framework import serializers
 from .models import Friend, User
 
 
+class BasicDisplayUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "avatar",
+        )
+        read_only_fields = fields
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

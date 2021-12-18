@@ -1,7 +1,7 @@
 from django_filters import rest_framework as django_filters
 from rest_framework import filters, mixins, viewsets
 
-from .filters import FridgeProductFilter, ShoppingListProductFilter
+from .filters import FridgeProductFilter
 from .models import FridgeProduct, FridgeProductHistory, ShoppingListProduct
 from .serializers import (
     CreateFridgeProductHistorySerializer,
@@ -68,19 +68,11 @@ class FridgeProductHistoryViewSet(viewsets.ModelViewSet):
 class ShoppingListProductViewSet(
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
-    mixins.ListModelMixin,
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
-    http_method_names = ("get", "post", "patch", "delete")
+    http_method_names = ("post", "patch", "delete")
     queryset = ShoppingListProduct.objects.all()
-
-    filterset_class = ShoppingListProductFilter
-
-    def filter_queryset(self, queryset):
-        if self.action != "list":
-            self.filterset_class = None
-        return super().filter_queryset(queryset)
 
     def get_serializer_class(self):
         if self.action == "create":

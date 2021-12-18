@@ -40,7 +40,7 @@ class ShoppingList(BaseModel):
         return self.shopping_list_product.filter(is_available=True)
 
     def update_is_archived(self):
-        self.is_archived = self.shopping_list_product.filter(status=ShoppingListProductStatus.CREATOR).count() == 0
+        self.is_archived = self.shopping_list_product.filter(status=ShoppingListProductStatus.FREE).count() == 0
         self.save()
 
     def __str__(self) -> str:
@@ -48,8 +48,8 @@ class ShoppingList(BaseModel):
 
 
 class ShoppingListFragment(BaseModel):
-    # shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_fragment", on_delete=models.CASCADE)
-    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_fragment", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="shopping_list_fragment", null=True, on_delete=models.SET_NULL)
 
     price = models.DecimalField(max_digits=9, decimal_places=2)
 

@@ -71,15 +71,17 @@ class FridgeProductHistory(BaseModel):
 
 
 class ShoppingListProduct(BaseModel):
+    class Meta:
+        ordering = ["-created_at"]
+
     shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_product", on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, related_name="shopping_list_product", on_delete=models.SET_NULL, null=True)
 
     name = models.CharField(max_length=60)
-    barcode = models.CharField(max_length=100, blank=True)
-    image = models.ImageField(blank=True)
+    note = models.TextField(blank=True)
 
     status = models.CharField(
-        choices=ShoppingListProductStatus.choices, default=ShoppingListProductStatus.CREATOR, max_length=7
+        choices=ShoppingListProductStatus.choices, default=ShoppingListProductStatus.FREE, max_length=12
     )
     created_at = models.DateTimeField(auto_now_add=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)

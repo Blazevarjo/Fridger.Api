@@ -17,7 +17,7 @@ class FridgeProductHistoryQuerySet(models.QuerySet):
 class ShoppingListProductHistoryQuerySet(models.QuerySet):
     def quantities(self):
         return self.aggregate(
-            quantity_base=Sum("quantity", filter=Q(status=ShoppingListProductStatus.CREATOR)),
+            quantity_base=Sum("quantity", filter=Q(status=ShoppingListProductStatus.FREE)),
             quantity_bought=Sum("quantity", filter=Q(status=ShoppingListProductStatus.BUYER)),
         )
 

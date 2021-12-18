@@ -7,7 +7,10 @@ from .serializers import (
     CreateShoppingListOwnershipSerializer,
     PartialUpdateShoppingListOwnershipSerializer,
     PartialUpdateShoppingListSerializer,
+    ReadOnlyAllProducts,
     ReadOnlyShoppingListOwnershipSerializer,
+    ReadOnlySummaryProducts,
+    ReadOnlyYourProductsSerializer,
     ShoppingListSerializer,
 )
 
@@ -30,6 +33,12 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
             return PartialUpdateShoppingListSerializer
         if self.action == "ownerships":
             return ReadOnlyShoppingListOwnershipSerializer
+        if self.action == "all_products":
+            return ReadOnlyAllProducts
+        if self.action == "your_products":
+            return ReadOnlyYourProductsSerializer
+        if self.action == "summary":
+            return ReadOnlySummaryProducts
         return super().get_serializer_class()
 
     @action(detail=True, methods=["get"])
@@ -38,6 +47,26 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
         ownerships = shopping_list.shopping_list_ownership
 
         serializer = self.get_serializer(ownerships, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["get"])
+    def all_products(self, request, pk=None):
+        shopping_list = self.get_object()
+        products = shopping_list.shopping_list_products
+
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["get"])
+    def your_products(self, request, pk=None):
+        shopping_list = self.get_object()
+        serializer = self.get_serializer(shopping_list)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["get"])
+    def summary(self, request, pk=None):
+        shopping_list = self.get_object()
+        serializer = self.get_serializer(shopping_list)
         return Response(serializer.data)
 
 

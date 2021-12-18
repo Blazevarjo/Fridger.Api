@@ -25,6 +25,7 @@ class FridgeProductStatus(models.TextChoices):
 
 
 class ShoppingListProductStatus(models.TextChoices):
-    CREATOR = "CREATOR", _("Creator")
-    BUYER = "BUYER", _("Buyer")
+    FREE = "FREE", _("Free")
     TAKER = "TAKER", _("Taker")
+    TAKER_MARKED = "TAKER_MARKED", _("Taker marked")
+    BUYER = "BUYER", _("Buyer")
