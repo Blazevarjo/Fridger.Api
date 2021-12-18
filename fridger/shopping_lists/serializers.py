@@ -3,6 +3,7 @@ from django.db.models import Q
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from fridger.products.models import ShoppingListProduct
 from fridger.products.serializers import (
     BasicListShoppingListProductSerializer,
     ListShoppingListProductSerializer,
@@ -96,8 +97,41 @@ class CreateShoppingListOwnershipSerializer(serializers.ModelSerializer):
         )
 
 
+class CreateShoppingListFragmentSerializer(serializers.ModelSerializer):
+    price = serializers.DecimalField(max_digits=9, decimal_places=2, min_value=0, allow_null=True)
+    products = serializers.PrimaryKeyRelatedField(
+        queryset=ShoppingListProduct.objects.filter(status=ShoppingListProductStatus.TAKER_MARKED),
+        many=True,
+        write_only=True,
+    )
+
+    class Meta:
+        model = ShoppingListFragment
+        fields = (
+            "id",
+            "user",
+            "shopping_list",
+            "price",
+            "products",
+        )
+        read_only_fields = (
+            "id",
+            "user",
+        )
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        products = validated_data.pop("products", [])
+        price = validated_data.get("price")
+        if not price:
+            validated_data["price"] = sum([product.price for product in products])
+        shopping_list_fragment = ShoppingListFragment.objects.create(user=user, **validated_data)
+        shopping_list_fragment.shopping_list_product.add(*products)
+        return shopping_list_fragment
+
+
 class ShoppingListFragmentSerializer(serializers.ModelSerializer):
-    products = BasicListShoppingListProductSerializer(many=True)
+    products = BasicListShoppingListProductSerializer(source="shopping_list_product", many=True)
 
     class Meta:
         model = ShoppingListFragment
@@ -111,7 +145,6 @@ class ShoppingListFragmentSerializer(serializers.ModelSerializer):
 
 class ReadOnlyYourProductsSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
-    # shopping_list_fragments = serializers.SerializerMethodField()
 
     class Meta:
         model = ShoppingList
@@ -130,15 +163,9 @@ class ReadOnlyYourProductsSerializer(serializers.ModelSerializer):
         )
         return BasicListShoppingListProductSerializer(shopping_list_products, many=True).data
 
-    # @extend_schema_field(ShoppingListFragmentSerializer(many=True))
-    # def get_shopping_list_fragments(self, obj):
-    #     user = self.context["request"].user
-    #     shopping_list_fragments = obj.shopping_list_fragment.get(user=user)
-    #     return ShoppingListFragmentSerializer(shopping_list_fragments, many=True).data
-
 
 class ReadOnlyAllProducts(serializers.ModelSerializer):
-    products = serializers.SerializerMethodField()
+    products = ListShoppingListProductSerializer(many=True)
 
     class Meta:
         model = ShoppingList
@@ -148,11 +175,12 @@ class ReadOnlyAllProducts(serializers.ModelSerializer):
         )
         read_only_fields = fields
 
-    @extend_schema_field(ListShoppingListProductSerializer(many=True))
-    def get_products(self, obj):
-        user = self.context["request"].user
-        shopping_list_products = obj.shopping_list_product.filter(created_by=user)
-        return ListShoppingListProductSerializer(shopping_list_products, many=True).data
+    # @extend_schema_field(ListShoppingListProductSerializer(many=True))
+    # def get_products(self, obj):
+    #     user = self.context["request"].user
+    #     raise Exception(obj)
+    #     shopping_list_products = obj.shopping_list_product.filter(created_by=user)
+    #     return ListShoppingListProductSerializer(shopping_list_products, many=True).data
 
 
 class ShoppingListSummaryUsers(serializers.ModelSerializer):
@@ -172,7 +200,9 @@ class ShoppingListSummaryUsers(serializers.ModelSerializer):
     @extend_schema_field(BasicListShoppingListProductSerializer(many=True))
     def get_products(self, obj):
         shopping_list = self.context["shopping_list"]
-        shopping_list_products = obj.shopping_list_product.filter(shopping_list=shopping_list)
+        shopping_list_products = obj.shopping_list_product.filter(shopping_list=shopping_list).exclude(
+            status=ShoppingListProductStatus.TAKER_MARKED
+        )
         return BasicListShoppingListProductSerializer(shopping_list_products, many=True).data
 
     @extend_schema_field(ShoppingListFragmentSerializer(many=True))
@@ -195,5 +225,6 @@ class ReadOnlySummaryProducts(serializers.ModelSerializer):
 
     @extend_schema_field(ShoppingListSummaryUsers(many=True))
     def get_users(self, obj):
-        users = obj.shopping_list_product.values_list("created_by", flat=True)
-        return ShoppingListSummaryUsers(users, many=True, context={"shopping_list_id": obj.id})
+        # users = obj.shopping_list_product.values_list("created_by", flat=True)
+        users = User.objects.filter(id__in=obj.shopping_list_product.values_list("created_by", flat=True))
+        return ShoppingListSummaryUsers(users, many=True, context={"shopping_list": obj}).data

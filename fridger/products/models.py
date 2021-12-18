@@ -5,7 +5,7 @@ from django.db import models
 
 from fridger.fridges.models import Fridge
 from fridger.products.managers import FridgeProductHistoryQuerySet
-from fridger.shopping_lists.models import ShoppingList
+from fridger.shopping_lists.models import ShoppingList, ShoppingListFragment
 from fridger.utils.enums import (
     FridgeProductStatus,
     QuantityType,
@@ -75,6 +75,9 @@ class ShoppingListProduct(BaseModel):
         ordering = ["-created_at"]
 
     shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_product", on_delete=models.CASCADE)
+    shopping_list_fragment = models.ForeignKey(
+        ShoppingListFragment, related_name="shopping_list_product", on_delete=models.CASCADE, blank=True, null=True
+    )
     created_by = models.ForeignKey(User, related_name="shopping_list_product", on_delete=models.SET_NULL, null=True)
 
     name = models.CharField(max_length=60)

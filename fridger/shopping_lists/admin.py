@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import ShoppingList, ShoppingListFragment, ShoppingListOwnership
+
+admin.site.register(ShoppingList)
+admin.site.register(ShoppingListFragment)
+admin.site.register(ShoppingListOwnership)

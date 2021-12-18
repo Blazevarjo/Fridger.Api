@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 class ShoppingList(BaseModel):
-    fridge = models.ForeignKey(Fridge, related_name="shopping_list", null=True, on_delete=models.SET_NULL)
+    fridge = models.ForeignKey(Fridge, related_name="shopping_list", blank=True, null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=60)
     is_archived = models.BooleanField(default=False)
