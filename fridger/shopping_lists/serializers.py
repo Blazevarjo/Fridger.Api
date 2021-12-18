@@ -4,16 +4,18 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from fridger.products.models import ShoppingListProduct
-from fridger.products.serializers import (
-    BasicListShoppingListProductSerializer,
-    ListShoppingListProductSerializer,
-)
+from fridger.products.serializers import BasicListShoppingListProductSerializer
 from fridger.users.serializers import BasicUserSerializer
 from fridger.utils.enums import ShoppingListProductStatus, UserPermission
 
 from .models import ShoppingList, ShoppingListFragment, ShoppingListOwnership
 
 User = get_user_model()
+
+
+##################
+# SHOPPING LISTS #
+##################
 
 
 class PartialUpdateShoppingListSerializer(serializers.ModelSerializer):
@@ -51,19 +53,9 @@ class ShoppingListSerializer(serializers.ModelSerializer):
         return shopping_list
 
 
-class ShoppingListDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = (
-            "id",
-            "name",
-            "is_archived",
-            "is_shared",
-            "free_products_count",
-            "taken_products_count",
-            "bought_products_count",
-            "products",
-        )
-        read_only_fields = fields
+############################
+# SHOPPING LIST OWNERSHIPS #
+############################
 
 
 class ReadOnlyShoppingListOwnershipSerializer(serializers.ModelSerializer):
@@ -95,6 +87,11 @@ class CreateShoppingListOwnershipSerializer(serializers.ModelSerializer):
             "shopping_list",
             "permission",
         )
+
+
+###########################
+# SHOPPING LIST FRAGMENTS #
+###########################
 
 
 class CreateShoppingListFragmentSerializer(serializers.ModelSerializer):
@@ -143,6 +140,11 @@ class ShoppingListFragmentSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+##########################
+# SHOPPING LIST PRODUCTS #
+##########################
+
+
 class ReadOnlyYourProductsSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
 
@@ -162,18 +164,6 @@ class ReadOnlyYourProductsSerializer(serializers.ModelSerializer):
             created_by=user,
         )
         return BasicListShoppingListProductSerializer(shopping_list_products, many=True).data
-
-
-class ReadOnlyAllProducts(serializers.ModelSerializer):
-    products = ListShoppingListProductSerializer(many=True)
-
-    class Meta:
-        model = ShoppingList
-        fields = (
-            "id",
-            "products",
-        )
-        read_only_fields = fields
 
 
 class ShoppingListSummaryUsers(serializers.ModelSerializer):
@@ -218,6 +208,5 @@ class ReadOnlySummaryProducts(serializers.ModelSerializer):
 
     @extend_schema_field(ShoppingListSummaryUsers(many=True))
     def get_users(self, obj):
-        # users = obj.shopping_list_product.values_list("created_by", flat=True)
         users = User.objects.filter(id__in=obj.shopping_list_product.values_list("created_by", flat=True))
         return ShoppingListSummaryUsers(users, many=True, context={"shopping_list": obj}).data
