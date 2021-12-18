@@ -89,7 +89,7 @@ class ShoppingListProduct(BaseModel):
     created_at = models.DateTimeField(auto_now_add=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
     quantity_type = models.CharField(choices=QuantityType.choices, max_length=5)
-    qauntity = models.DecimalField(max_digits=10, decimal_places=3)
+    quantity = models.DecimalField(max_digits=10, decimal_places=3)
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
