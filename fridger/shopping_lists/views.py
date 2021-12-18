@@ -10,7 +10,6 @@ from .serializers import (
     CreateShoppingListOwnershipSerializer,
     PartialUpdateShoppingListOwnershipSerializer,
     PartialUpdateShoppingListSerializer,
-    ReadOnlyAllProducts,
     ReadOnlyShoppingListOwnershipSerializer,
     ReadOnlySummaryProducts,
     ReadOnlyYourProductsSerializer,

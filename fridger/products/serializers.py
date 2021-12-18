@@ -125,6 +125,7 @@ class CreateShoppingListProductSerializer(serializers.ModelSerializer):
             "price",
             "quantity_type",
             "qauntity",
+            "note",
         )
         read_only_fields = (
             "id",
@@ -147,6 +148,7 @@ class PartialUpdateShoppingListProductSerializer(serializers.ModelSerializer):
             "price",
             "quantity_type",
             "qauntity",
+            "note",
         )
         read_only_fields = (
             "id",
@@ -166,6 +168,7 @@ class BasicListShoppingListProductSerializer(serializers.ModelSerializer):
             "price",
             "quantity_type",
             "qauntity",
+            "note",
         )
         read_only_fields = fields
 
@@ -183,5 +186,6 @@ class ListShoppingListProductSerializer(serializers.ModelSerializer):
             "price",
             "quantity_type",
             "qauntity",
+            "note",
         )
         read_only_fields = fields

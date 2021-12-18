@@ -175,13 +175,6 @@ class ReadOnlyAllProducts(serializers.ModelSerializer):
         )
         read_only_fields = fields
 
-    # @extend_schema_field(ListShoppingListProductSerializer(many=True))
-    # def get_products(self, obj):
-    #     user = self.context["request"].user
-    #     raise Exception(obj)
-    #     shopping_list_products = obj.shopping_list_product.filter(created_by=user)
-    #     return ListShoppingListProductSerializer(shopping_list_products, many=True).data
-
 
 class ShoppingListSummaryUsers(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
