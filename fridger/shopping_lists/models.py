@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q
 
 from fridger.fridges.models import Fridge
 from fridger.utils.enums import ShoppingListProductStatus, UserPermission
@@ -20,24 +21,21 @@ class ShoppingList(BaseModel):
 
     @property
     def free_products_count(self) -> int:
-        # reduce by one because of the owner
-        return 0
+        return self.shopping_list_product.filter(status=ShoppingListProductStatus.FREE).count()
 
     @property
     def taken_products_count(self) -> int:
-        return 0
+        return self.shopping_list_product.filter(
+            Q(status=ShoppingListProductStatus.TAKER) | Q(status=ShoppingListProductStatus.TAKER_MARKED)
+        ).count()
 
     @property
     def bought_products_count(self) -> int:
-        return 0
+        return self.shopping_list_product.filter(status=ShoppingListProductStatus.BUYER).count()
 
     @property
     def is_shared(self) -> bool:
         return self.shopping_list_ownership.count() > 1
-
-    @property
-    def products(self):
-        return self.shopping_list_product.filter(is_available=True)
 
     def update_is_archived(self):
         self.is_archived = self.shopping_list_product.filter(status=ShoppingListProductStatus.FREE).count() == 0
