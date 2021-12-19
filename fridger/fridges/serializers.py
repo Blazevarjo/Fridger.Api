@@ -6,6 +6,10 @@ from fridger.utils.enums import UserPermission
 
 from .models import Fridge, FridgeOwnership
 
+###########
+# FRIDGES #
+###########
+
 
 class FridgeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,6 +33,16 @@ class FridgeSerializer(serializers.ModelSerializer):
         return fridge
 
 
+class CurrentUserFridgeOwnershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FridgeOwnership
+        fields = (
+            "id",
+            "permission",
+        )
+        read_only_fields = fields
+
+
 class FridgeDetailSerializer(serializers.ModelSerializer):
     my_ownership = serializers.SerializerMethodField()
 
@@ -43,11 +57,16 @@ class FridgeDetailSerializer(serializers.ModelSerializer):
         )
         read_only_fields = fields
 
-    @extend_schema_field(serializers.ChoiceField(choices=UserPermission.choices))
+    @extend_schema_field(CurrentUserFridgeOwnershipSerializer)
     def get_my_ownership(self, obj):
         user = self.context["request"].user
-        permission = obj.fridge_ownership.get(user=user).permission
-        return permission
+        ownership = obj.fridge_ownership.get(user=user)
+        return CurrentUserFridgeOwnershipSerializer(ownership).data
+
+
+#####################
+# FRIDGE OWNERSHIPS #
+#####################
 
 
 class ReadOnlyFridgeOwnershipSerializer(serializers.ModelSerializer):
