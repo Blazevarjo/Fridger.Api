@@ -26,6 +26,8 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if self.action == "all_products":
+            return ShoppingList.objects.user_shopping_lists(user).prefetch_related("shopping_list_product__created_by")
         return ShoppingList.objects.user_shopping_lists(user)
 
     def get_serializer_class(self):
