@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema_field
@@ -147,6 +149,7 @@ class ReadOnlyYourProductsSerializer(serializers.ModelSerializer):
 
 class ShoppingListSummaryUsers(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -155,15 +158,22 @@ class ShoppingListSummaryUsers(serializers.ModelSerializer):
             "username",
             "avatar",
             "products",
+            "total_price",
         )
+        read_only_fields = fields
 
     @extend_schema_field(BasicListShoppingListProductSerializer(many=True))
     def get_products(self, obj):
         shopping_list = self.context["shopping_list"]
-        shopping_list_products = obj.shopping_list_product.filter(shopping_list=shopping_list).exclude(
-            status=ShoppingListProductStatus.TAKER_MARKED
+        products = obj.shopping_list_product.filter(shopping_list=shopping_list).exclude(
+            status=ShoppingListProductStatus.FREE
         )
-        return BasicListShoppingListProductSerializer(shopping_list_products, many=True).data
+        return BasicListShoppingListProductSerializer(products, many=True).data
+
+    def get_total_price(self, obj) -> Decimal:
+        shopping_list = self.context["shopping_list"]
+        products = obj.shopping_list_product.filter(shopping_list=shopping_list, status=ShoppingListProductStatus.BUYER)
+        return sum([product.price for product in products])
 
 
 class ReadOnlySummaryProducts(serializers.ModelSerializer):
