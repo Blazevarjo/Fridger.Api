@@ -45,13 +45,6 @@ class ShoppingList(BaseModel):
         return self.name
 
 
-class ShoppingListFragment(BaseModel):
-    shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_fragment", on_delete=models.CASCADE)
-    user = models.ForeignKey(User, related_name="shopping_list_fragment", null=True, on_delete=models.SET_NULL)
-
-    price = models.DecimalField(max_digits=9, decimal_places=2)
-
-
 class ShoppingListOwnership(BaseModel):
     user = models.ForeignKey(User, related_name="shopping_list_ownership", on_delete=models.CASCADE)
     shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_ownership", on_delete=models.CASCADE)

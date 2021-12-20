@@ -1,12 +1,12 @@
-from rest_framework import mixins, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from fridger.products.serializers import ListShoppingListProductSerializer
 
-from .models import ShoppingList, ShoppingListFragment, ShoppingListOwnership
+from .models import ShoppingList, ShoppingListOwnership
 from .serializers import (
-    CreateShoppingListFragmentSerializer,
+    BuyListOfProductsSerializer,
     CreateShoppingListOwnershipSerializer,
     PartialUpdateShoppingListOwnershipSerializer,
     PartialUpdateShoppingListSerializer,
@@ -37,6 +37,8 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
             return PartialUpdateShoppingListSerializer
         if self.action == "ownerships":
             return ReadOnlyShoppingListOwnershipSerializer
+        if self.action == "buy_products":
+            return BuyListOfProductsSerializer
         if self.action == "all_products":
             return ListShoppingListProductSerializer
         if self.action == "your_products":
@@ -53,7 +55,16 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(ownerships, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["get"])
+    @action(detail=True, methods=["post"], url_path="buy-products")
+    def buy_products(self, request, pk=None):
+        shopping_list = self.get_object()
+        serializer = self.get_serializer(shopping_list, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+
+    @action(detail=True, methods=["get"], url_path="all-products")
     def all_products(self, request, pk=None):
         shopping_list = self.get_object()
         products = shopping_list.shopping_list_product
@@ -61,7 +72,7 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["get"])
+    @action(detail=True, methods=["get"], url_path="your-products")
     def your_products(self, request, pk=None):
         shopping_list = self.get_object()
         serializer = self.get_serializer(shopping_list)
@@ -88,9 +99,3 @@ class ShoppingListOwnershipViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return ShoppingListOwnership.objects.user_shopping_list_ownerships(user)
-
-
-class ShoppingListFragmentViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-
-    queryset = ShoppingListFragment.objects.none()
-    serializer_class = CreateShoppingListFragmentSerializer

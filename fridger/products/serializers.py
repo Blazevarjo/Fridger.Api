@@ -157,6 +157,32 @@ class PartialUpdateShoppingListProductSerializer(serializers.ModelSerializer):
         )
 
 
+class UpdatePriceShoppingListProductSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField()
+
+    class Meta:
+        model = ShoppingListProduct
+        fields = (
+            "id",
+            "price",
+            "status",
+            "created_by",
+            "name",
+            "price",
+            "quantity_type",
+            "quantity",
+            "note",
+        )
+        read_only_fields = (
+            "created_by",
+            "status",
+            "name",
+            "quantity_type",
+            "quantity",
+            "note",
+        )
+
+
 class BasicListShoppingListProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingListProduct
