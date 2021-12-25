@@ -54,12 +54,17 @@ class Command(BaseCommand):
                 "product_name": product.name,
                 "days_difference": abs(days_difference),
             }
-
-        PushClient().publish(
-            PushMessage(
-                to=mobile_tokens,
-                title=title,
-                body=body,
-                data={"fridge_id": fridge.id, "product_id": product.id},
+        try:
+            PushClient().publish_multiple(
+                [
+                    PushMessage(
+                        to=mobile_token,
+                        title=title,
+                        body=body,
+                        data={"fridge_id": str(fridge.id), "product_id": str(product.id)},
+                    )
+                    for mobile_token in mobile_tokens
+                ]
             )
-        )
+        except:
+            pass

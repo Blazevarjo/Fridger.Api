@@ -1,6 +1,8 @@
 from django.shortcuts import render
+from django.utils.translation import gettext as _
 from djoser.views import UserViewSet as DjoserUserViewSet
 from drf_spectacular.utils import extend_schema
+from exponent_server_sdk import PushClient, PushMessage
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -50,7 +52,22 @@ class FriendViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Destr
         return user.friends
 
     def perform_create(self, serializer):
-        serializer.save(friend_1=self.request.user)
+        friendship = serializer.save(friend_1=self.request.user)
+        sender = friendship.friend_1
+        receiver = friendship.friend_2
+        if mobile_token := receiver.mobile_token:
+            try:
+                PushClient().publish(
+                    PushMessage(
+                        to=mobile_token,
+                        title=_("You have received an invitation to become a friend"),
+                        body=_("You have received an invitation to become a friend from %(username)s")
+                        % {"username": sender.username},
+                        data={"friend_id": str(friendship.id), "user_id": str(sender.id)},
+                    )
+                )
+            except:
+                pass
 
     def list(self, request, *args, **kwargs):
         """Friends of the currently logged in user."""

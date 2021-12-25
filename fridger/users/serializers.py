@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -44,6 +45,11 @@ class UserSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("email",)
         extra_kwargs = {"mobile_token": {"write_only": True}}
+
+    def validate_mobile_token(self, value: str):
+        if value.startswith("ExponentPushToken[") or value.endswith("]"):
+            raise serializers.ValidationError(_('Token should be in form: "ExponentPushToken[token]"'))
+        return value
 
 
 ###########
