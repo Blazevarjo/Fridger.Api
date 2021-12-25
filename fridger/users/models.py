@@ -16,6 +16,7 @@ class User(AbstractUser, BaseModel):
     username = models.CharField(_("Username"), max_length=40, unique=True)
     avatar = models.ImageField(_("Avatar"), blank=True, upload_to=avatar_path)
     can_use_real_name = models.BooleanField(_("Can display real name"), default=False)
+    mobile_token = models.CharField(_("Mobile push token"), max_length=60, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]

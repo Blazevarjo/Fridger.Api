@@ -43,11 +43,33 @@ class CustomUserAdmin(UserAdmin):
         (None, {"fields": ("email", "password")}),
         (
             "Personal info",
-            {"fields": ("first_name", "last_name", "username", "can_use_real_name", "avatar", "is_active")},
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "username",
+                    "mobile_token",
+                    "can_use_real_name",
+                    "avatar",
+                    "is_active",
+                )
+            },
         ),
     )
     ordering = ("date_joined",)
-    add_fieldsets = ((None, {"fields": ("email", "username", "password1", "password2")}),)
+    add_fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "email",
+                    "username",
+                    "password1",
+                    "password2",
+                )
+            },
+        ),
+    )
 
 
 admin.site.register(User, CustomUserAdmin)

@@ -3,6 +3,10 @@ from rest_framework import serializers
 
 from .models import Friend, User
 
+#########
+# USERS #
+#########
+
 
 class BasicDisplayUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,13 +16,6 @@ class BasicDisplayUserSerializer(serializers.ModelSerializer):
             "avatar",
         )
         read_only_fields = fields
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("id", "email", "username", "first_name", "last_name", "avatar")
-        read_only_fields = ("email",)
 
 
 class BasicUserSerializer(serializers.ModelSerializer):
@@ -31,6 +28,27 @@ class BasicUserSerializer(serializers.ModelSerializer):
             "last_name",
             "avatar",
         )
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+            "avatar",
+            "mobile_token",
+        )
+        read_only_fields = ("email",)
+        extra_kwargs = {"mobile_token": {"write_only": True}}
+
+
+###########
+# FRIENDS #
+###########
 
 
 class CreateFriendSerializer(serializers.Serializer):
