@@ -37,3 +37,6 @@ boto3==1.18.41
 
 # User authentication
 djoser==2.1.0
+
+# Sending push notification to mobiles
+exponent-server-sdk==2.0.0
