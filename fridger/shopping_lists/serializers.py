@@ -29,7 +29,19 @@ class PartialUpdateShoppingListSerializer(serializers.ModelSerializer):
         fields = ("name",)
 
 
+class CurrentUserShoppingListOwnershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingListOwnership
+        fields = (
+            "id",
+            "permission",
+        )
+        read_only_fields = fields
+
+
 class ShoppingListSerializer(serializers.ModelSerializer):
+    my_ownership = serializers.SerializerMethodField()
+
     class Meta:
         model = ShoppingList
         fields = (
@@ -41,6 +53,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
             "bought_products_count",
             "is_archived",
             "is_shared",
+            "my_ownership",
         )
         read_only_fields = (
             "id",
@@ -49,6 +62,7 @@ class ShoppingListSerializer(serializers.ModelSerializer):
             "bought_products_count",
             "is_archived",
             "is_shared",
+            "my_ownership",
         )
 
     def create(self, validated_data):
@@ -56,6 +70,12 @@ class ShoppingListSerializer(serializers.ModelSerializer):
         shopping_list = ShoppingList.objects.create(**validated_data)
         ShoppingListOwnership.objects.create(user=user, shopping_list=shopping_list, permission=UserPermission.CREATOR)
         return shopping_list
+
+    @extend_schema_field(CurrentUserShoppingListOwnershipSerializer)
+    def get_my_ownership(self, obj):
+        user = self.context["request"].user
+        ownership = obj.shopping_list_ownership.get(user=user)
+        return CurrentUserShoppingListOwnershipSerializer(ownership).data
 
 
 ############################
