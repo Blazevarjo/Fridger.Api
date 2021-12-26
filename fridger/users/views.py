@@ -1,16 +1,17 @@
 from django.shortcuts import render
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from djoser.views import UserViewSet as DjoserUserViewSet
 from drf_spectacular.utils import extend_schema
 from exponent_server_sdk import PushClient, PushMessage
-from rest_framework import mixins, viewsets
+from rest_framework import generics, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .filters import FriendFilter
 from .models import Friend, User
 from .permissions import IsFriendRequestReceiver, IsOneOfFriend
-from .serializers import FriendSerializer, UserSerializer
+from .serializers import FriendSerializer, GeneralStatisticsSerializer, UserSerializer
 
 
 def activate_account(request, uid, token):
@@ -88,4 +89,27 @@ class FriendViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Destr
         friend = self.get_object()
         friend.accept()
         serializer = self.get_serializer(friend)
+        return Response(serializer.data)
+
+
+class StatisticsView(generics.GenericAPIView):
+    queryset = User.objects.none()
+    serializer_class = GeneralStatisticsSerializer
+
+    def get(self, request, format=None):
+        user = request.user
+        last_7_days_start_date = timezone.datetime.today() - timezone.timedelta(days=7)
+        last_30_days_start_date = timezone.datetime.today() - timezone.timedelta(days=30)
+        data = {
+            "last_7_days": {
+                "period_name": "last 7 days",
+                "food_stats": user.food_stats(last_7_days_start_date),
+                **user.money_spent_stats(last_7_days_start_date),
+            },
+            "last_30_days": {
+                "food_stats": user.food_stats(last_30_days_start_date),
+                **user.money_spent_stats(last_30_days_start_date),
+            },
+        }
+        serializer = self.get_serializer(data)
         return Response(serializer.data)

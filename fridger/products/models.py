@@ -72,7 +72,7 @@ class FridgeProductHistory(BaseModel):
 
 class ShoppingListProduct(BaseModel):
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-updated_at"]
 
     shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_product", on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, related_name="shopping_list_product", on_delete=models.SET_NULL, null=True)
@@ -84,6 +84,8 @@ class ShoppingListProduct(BaseModel):
         choices=ShoppingListProductStatus.choices, default=ShoppingListProductStatus.FREE, max_length=12
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     price = models.DecimalField(max_digits=9, decimal_places=2, blank=True, null=True)
     quantity_type = models.CharField(choices=QuantityType.choices, max_length=5)
     quantity = models.DecimalField(max_digits=10, decimal_places=3)

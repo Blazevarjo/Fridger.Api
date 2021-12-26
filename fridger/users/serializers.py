@@ -107,3 +107,36 @@ class FriendSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"You are already friends with user '{friend_2_id}'")
 
         return attrs
+
+
+##############
+# STATISTICS #
+##############
+
+
+class FoodDecimalsSerializer(serializers.Serializer):
+    liters = serializers.DecimalField(max_digits=10, decimal_places=3, read_only=True)
+    kilograms = serializers.DecimalField(max_digits=10, decimal_places=3, read_only=True)
+
+
+class FoodStatisticsSerializer(serializers.Serializer):
+    eaten = serializers.SerializerMethodField()
+    wasted = serializers.SerializerMethodField()
+
+    @extend_schema_field(FoodDecimalsSerializer)
+    def get_eaten(self, obj):
+        return FoodDecimalsSerializer({"liters": obj["eaten_liters"], "kilograms": obj["eaten_kilograms"]}).data
+
+    @extend_schema_field(FoodDecimalsSerializer)
+    def get_wasted(self, obj):
+        return FoodDecimalsSerializer({"liters": obj["wasted_liters"], "kilograms": obj["wasted_kilograms"]}).data
+
+
+class StatisticsSerializer(serializers.Serializer):
+    food_stats = FoodStatisticsSerializer(read_only=True)
+    money_spent = serializers.DecimalField(max_digits=9, decimal_places=2, read_only=True)
+
+
+class GeneralStatisticsSerializer(serializers.Serializer):
+    last_7_days = StatisticsSerializer(read_only=True)
+    last_30_days = StatisticsSerializer(read_only=True)

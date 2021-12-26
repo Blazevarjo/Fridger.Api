@@ -24,6 +24,7 @@ auth_urls = [
 
 api_urls = [
     path("auth/users/", include(auth_urls)),
+    path("statistics", views.StatisticsView.as_view()),
 ]
 
 api_urls += router.urls

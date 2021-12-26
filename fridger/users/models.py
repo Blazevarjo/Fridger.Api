@@ -1,7 +1,17 @@
+from decimal import Decimal
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Case, F, Q, Sum, When
+from django.db.models.functions import Coalesce
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
+from fridger.utils.enums import (
+    FridgeProductStatus,
+    QuantityType,
+    ShoppingListProductStatus,
+)
 from fridger.utils.models import BaseModel
 
 from .managers import CustomUserManager, FriendQuerySet
@@ -27,6 +37,102 @@ class User(AbstractUser, BaseModel):
     def friends(self):
         friends = Friend.objects.user_friends(self)
         return friends
+
+    def food_stats(self, start_date=None, end_date=timezone.datetime.now()):
+        products = self.fridge_product_history
+        if start_date and end_date:
+            products = products.filter(created_at__range=[start_date, end_date])
+
+        stats = products.aggregate(
+            eaten_liters=Coalesce(
+                Sum(
+                    Case(
+                        When(
+                            status=FridgeProductStatus.USED,
+                            product__quantity_type=QuantityType.ML,
+                            then=F("quantity") / 1000,
+                        ),
+                        When(
+                            status=FridgeProductStatus.USED,
+                            product__quantity_type=QuantityType.L,
+                            then=F("quantity"),
+                        ),
+                        output_field=models.DecimalField(),
+                    ),
+                ),
+                Decimal(0),
+            ),
+            eaten_kilograms=Coalesce(
+                Sum(
+                    Case(
+                        When(
+                            status=FridgeProductStatus.USED,
+                            product__quantity_type=QuantityType.G,
+                            then=F("quantity") / 1000,
+                        ),
+                        When(
+                            status=FridgeProductStatus.USED,
+                            product__quantity_type=QuantityType.KG,
+                            then=F("quantity"),
+                        ),
+                        output_field=models.DecimalField(),
+                    )
+                ),
+                Decimal(0),
+            ),
+            eaten_pieces=Coalesce(
+                Sum("quantity", filter=Q(status=FridgeProductStatus.USED, product__quantity_type=QuantityType.PIECE)),
+                Decimal(0),
+            ),
+            wasted_liters=Coalesce(
+                Sum(
+                    Case(
+                        When(
+                            status=FridgeProductStatus.WASTED,
+                            product__quantity_type=QuantityType.ML,
+                            then=F("quantity") / 1000,
+                        ),
+                        When(
+                            status=FridgeProductStatus.WASTED,
+                            product__quantity_type=QuantityType.L,
+                            then=F("quantity"),
+                        ),
+                        output_field=models.DecimalField(),
+                    )
+                ),
+                Decimal(0),
+            ),
+            wasted_kilograms=Coalesce(
+                Sum(
+                    Case(
+                        When(
+                            status=FridgeProductStatus.WASTED,
+                            product__quantity_type=QuantityType.G,
+                            then=F("quantity") / 1000,
+                        ),
+                        When(
+                            status=FridgeProductStatus.WASTED,
+                            product__quantity_type=QuantityType.KG,
+                            then=F("quantity"),
+                        ),
+                        output_field=models.DecimalField(),
+                    )
+                ),
+                Decimal(0),
+            ),
+            wasted_pieces=Coalesce(
+                Sum("quantity", filter=Q(status=FridgeProductStatus.WASTED, product__quantity_type=QuantityType.PIECE)),
+                Decimal(0),
+            ),
+        )
+        return stats
+
+    def money_spent_stats(self, start_date, end_date=timezone.datetime.now()):
+        products = self.shopping_list_product
+        if start_date and end_date:
+            products = products.filter(updated_at__range=[start_date, end_date])
+        stats = products.filter(status=ShoppingListProductStatus.BUYER).aggregate(money_spent=Sum("price"))
+        return stats
 
     def __str__(self):
         return self.email
