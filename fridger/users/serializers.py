@@ -117,6 +117,7 @@ class FriendSerializer(serializers.ModelSerializer):
 class FoodDecimalsSerializer(serializers.Serializer):
     liters = serializers.DecimalField(max_digits=10, decimal_places=3, read_only=True)
     kilograms = serializers.DecimalField(max_digits=10, decimal_places=3, read_only=True)
+    pieces = serializers.DecimalField(max_digits=10, decimal_places=3, read_only=True)
 
 
 class FoodStatisticsSerializer(serializers.Serializer):
@@ -125,11 +126,23 @@ class FoodStatisticsSerializer(serializers.Serializer):
 
     @extend_schema_field(FoodDecimalsSerializer)
     def get_eaten(self, obj):
-        return FoodDecimalsSerializer({"liters": obj["eaten_liters"], "kilograms": obj["eaten_kilograms"]}).data
+        return FoodDecimalsSerializer(
+            {
+                "liters": obj["eaten_liters"],
+                "kilograms": obj["eaten_kilograms"],
+                "pieces": obj["eaten_pieces"],
+            }
+        ).data
 
     @extend_schema_field(FoodDecimalsSerializer)
     def get_wasted(self, obj):
-        return FoodDecimalsSerializer({"liters": obj["wasted_liters"], "kilograms": obj["wasted_kilograms"]}).data
+        return FoodDecimalsSerializer(
+            {
+                "liters": obj["wasted_liters"],
+                "kilograms": obj["wasted_kilograms"],
+                "pieces": obj["wasted_pieces"],
+            }
+        ).data
 
 
 class StatisticsSerializer(serializers.Serializer):

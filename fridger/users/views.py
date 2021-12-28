@@ -98,11 +98,15 @@ class StatisticsView(generics.GenericAPIView):
 
     def get(self, request, format=None):
         user = request.user
-        last_7_days_start_date = timezone.datetime.today() - timezone.timedelta(days=7)
-        last_30_days_start_date = timezone.datetime.today() - timezone.timedelta(days=30)
+        last_24_hours_start_date = timezone.datetime.now() - timezone.timedelta(days=1)
+        last_7_days_start_date = timezone.datetime.now() - timezone.timedelta(days=7)
+        last_30_days_start_date = timezone.datetime.now() - timezone.timedelta(days=30)
         data = {
+            "last_24_hours": {
+                "food_stats": user.food_stats(last_24_hours_start_date),
+                **user.money_spent_stats(last_24_hours_start_date),
+            },
             "last_7_days": {
-                "period_name": "last 7 days",
                 "food_stats": user.food_stats(last_7_days_start_date),
                 **user.money_spent_stats(last_7_days_start_date),
             },
