@@ -47,9 +47,9 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {"mobile_token": {"write_only": True}}
 
     def validate_mobile_token(self, value: str):
-        if value.startswith("ExponentPushToken[") or value.endswith("]"):
-            raise serializers.ValidationError(_('Token should be in form: "ExponentPushToken[token]"'))
-        return value
+        if value.startswith("ExponentPushToken[") and value.endswith("]"):
+            return value
+        raise serializers.ValidationError(_('Token should be in form: "ExponentPushToken[token]"'))
 
 
 ###########
