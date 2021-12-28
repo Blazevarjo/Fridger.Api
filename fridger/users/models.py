@@ -41,7 +41,7 @@ class User(AbstractUser, BaseModel):
     def food_stats(self, start_date=None, end_date=timezone.datetime.now()):
         products = self.fridge_product_history
         if start_date and end_date:
-            products = products.filter(created_at__range=[start_date, end_date])
+            products = products.filter(created_at__gte=start_date, created_at__lte=end_date)
 
         stats = products.aggregate(
             eaten_liters=Coalesce(
