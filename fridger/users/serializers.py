@@ -1,4 +1,5 @@
 from django.utils.translation import gettext as _
+from djoser.serializers import TokenCreateSerializer as DjoserTokenCreateSerializer
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -7,6 +8,12 @@ from .models import Friend, User
 #########
 # USERS #
 #########
+
+
+class TokenCreateSerializer(DjoserTokenCreateSerializer):
+    def validate_email(self, value):
+        email = value or ""
+        return email.strip().lower()
 
 
 class BasicDisplayUserSerializer(serializers.ModelSerializer):

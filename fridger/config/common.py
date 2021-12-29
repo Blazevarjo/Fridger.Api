@@ -177,6 +177,7 @@ class Common(Configuration):
         "PASSWORD_RESET_CONFIRM_URL": "password-reset/{uid}/{token}",
         "SERIALIZERS": {
             "current_user": "fridger.users.serializers.UserSerializer",
+            "token_create": "fridger.users.serializers.TokenCreateSerializer",
         },
     }
 
