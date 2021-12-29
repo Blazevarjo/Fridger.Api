@@ -38,7 +38,10 @@ class ShoppingList(BaseModel):
         return self.shopping_list_ownership.count() > 1
 
     def update_is_archived(self):
-        self.is_archived = self.shopping_list_product.exclude(status=ShoppingListProductStatus.BUYER).count() == 0
+        self.is_archived = (
+            self.shopping_list_product.count() != 0
+            and self.shopping_list_product.exclude(status=ShoppingListProductStatus.BUYER).count() == 0
+        )
         self.save()
 
     def __str__(self) -> str:
