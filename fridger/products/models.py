@@ -72,7 +72,7 @@ class FridgeProductHistory(BaseModel):
 
 class ShoppingListProduct(BaseModel):
     class Meta:
-        ordering = ["-updated_at"]
+        ordering = ["-created_at"]
 
     shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_product", on_delete=models.CASCADE)
     taken_by = models.ForeignKey(

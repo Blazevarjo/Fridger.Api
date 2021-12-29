@@ -130,7 +130,7 @@ class User(AbstractUser, BaseModel):
     def money_spent_stats(self, start_date, end_date=timezone.datetime.now()):
         products = self.shopping_list_product
         if start_date and end_date:
-            products = products.filter(updated_at__range=[start_date, end_date])
+            products = products.filter(updated_at__gte=start_date, updated_at__lte=end_date)
         stats = products.filter(status=ShoppingListProductStatus.BUYER).aggregate(money_spent=Sum("price"))
         return stats
 
