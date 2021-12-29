@@ -75,7 +75,9 @@ class ShoppingListProduct(BaseModel):
         ordering = ["-updated_at"]
 
     shopping_list = models.ForeignKey(ShoppingList, related_name="shopping_list_product", on_delete=models.CASCADE)
-    created_by = models.ForeignKey(User, related_name="shopping_list_product", on_delete=models.SET_NULL, null=True)
+    taken_by = models.ForeignKey(
+        User, related_name="shopping_list_product", on_delete=models.SET_NULL, blank=True, null=True
+    )
 
     name = models.CharField(max_length=60)
     note = models.TextField(blank=True)

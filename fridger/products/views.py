@@ -82,6 +82,3 @@ class ShoppingListProductViewSet(
         elif self.action == "list":
             return ListShoppingListProductSerializer
         return super().get_serializer_class()
-
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)

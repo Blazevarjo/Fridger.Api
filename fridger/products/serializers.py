@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from fridger.users.serializers import BasicDisplayUserSerializer
+from fridger.utils.enums import ShoppingListProductStatus
 
 from .models import FridgeProduct, FridgeProductHistory, ShoppingListProduct
 
@@ -119,7 +120,7 @@ class CreateShoppingListProductSerializer(serializers.ModelSerializer):
             "id",
             "shopping_list",
             "created_at",
-            "created_by",
+            "taken_by",
             "status",
             "name",
             "quantity_type",
@@ -129,7 +130,7 @@ class CreateShoppingListProductSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id",
             "created_at",
-            "created_by",
+            "taken_by",
             "status",
         )
 
@@ -141,7 +142,7 @@ class PartialUpdateShoppingListProductSerializer(serializers.ModelSerializer):
             "id",
             "shopping_list",
             "created_at",
-            "created_by",
+            "taken_by",
             "status",
             "name",
             "price",
@@ -156,6 +157,15 @@ class PartialUpdateShoppingListProductSerializer(serializers.ModelSerializer):
             "created_by",
         )
 
+    def update(self, instance, validated_data):
+        super().update()
+        user = self.context["request"].user
+        if validated_data.get("status") == ShoppingListProductStatus.FREE:
+            instance.taken_by = None
+        else:
+            instance.taken_by = user
+        return super().update(instance, validated_data)
+
 
 class UpdatePriceShoppingListProductSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField()
@@ -166,7 +176,7 @@ class UpdatePriceShoppingListProductSerializer(serializers.ModelSerializer):
             "id",
             "price",
             "status",
-            "created_by",
+            "taken_by",
             "name",
             "price",
             "quantity_type",
@@ -174,7 +184,7 @@ class UpdatePriceShoppingListProductSerializer(serializers.ModelSerializer):
             "note",
         )
         read_only_fields = (
-            "created_by",
+            "taken_by",
             "status",
             "name",
             "quantity_type",
@@ -199,13 +209,13 @@ class BasicListShoppingListProductSerializer(serializers.ModelSerializer):
 
 
 class ListShoppingListProductSerializer(serializers.ModelSerializer):
-    created_by = BasicDisplayUserSerializer()
+    taken_by = BasicDisplayUserSerializer()
 
     class Meta:
         model = ShoppingListProduct
         fields = (
             "id",
-            "created_by",
+            "taken_by",
             "status",
             "name",
             "price",

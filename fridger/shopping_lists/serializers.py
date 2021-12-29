@@ -136,12 +136,12 @@ class BuyListOfProductsSerializer(serializers.ModelSerializer):
         validated_products_ids = [validated_product["id"] for validated_product in validated_products]
         modified_products = []
         for product in instance.shopping_list_product.filter(id__in=validated_products_ids):
-            product.created_by = user
+            product.taken_by = user
             product.price = next(item["price"] for item in validated_products if item["id"] == product.id)
             product.status = ShoppingListProductStatus.BUYER
             modified_products.append(product)
 
-        ShoppingListProduct.objects.bulk_update(modified_products, ["created_by", "price", "status"])
+        ShoppingListProduct.objects.bulk_update(modified_products, ["taken_by", "price", "status"])
         instance.update_is_archived()
         return instance
 
@@ -162,7 +162,7 @@ class ReadOnlyYourProductsSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         shopping_list_products = obj.shopping_list_product.filter(
             Q(status=ShoppingListProductStatus.TAKER) | Q(status=ShoppingListProductStatus.TAKER_MARKED),
-            created_by=user,
+            taken_by=user,
         )
         return BasicListShoppingListProductSerializer(shopping_list_products, many=True).data
 
@@ -209,5 +209,5 @@ class ReadOnlySummaryProducts(serializers.ModelSerializer):
 
     @extend_schema_field(ShoppingListSummaryUsers(many=True))
     def get_users(self, obj):
-        users = User.objects.filter(id__in=obj.shopping_list_product.values_list("created_by", flat=True))
+        users = User.objects.filter(id__in=obj.shopping_list_product.values_list("taken_by", flat=True))
         return ShoppingListSummaryUsers(users, many=True, context={"shopping_list": obj}).data
