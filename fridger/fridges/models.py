@@ -10,7 +10,11 @@ User = get_user_model()
 
 
 class Fridge(BaseModel):
+    class Meta:
+        ordering = ["-created_at"]
+
     name = models.CharField(_("Name"), max_length=60)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     objects = FridgeQuerySet.as_manager()
 
