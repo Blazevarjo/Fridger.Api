@@ -158,7 +158,6 @@ class PartialUpdateShoppingListProductSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance, validated_data):
-        super().update()
         user = self.context["request"].user
         if validated_data.get("status") == ShoppingListProductStatus.FREE:
             instance.taken_by = None
