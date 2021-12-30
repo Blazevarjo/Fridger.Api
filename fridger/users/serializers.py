@@ -158,5 +158,6 @@ class StatisticsSerializer(serializers.Serializer):
 
 
 class GeneralStatisticsSerializer(serializers.Serializer):
+    last_24_hours = StatisticsSerializer(read_only=True)
     last_7_days = StatisticsSerializer(read_only=True)
     last_30_days = StatisticsSerializer(read_only=True)

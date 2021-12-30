@@ -36,6 +36,11 @@ class FridgeProductViewSet(
         "expiration_date",
     ]
 
+    def get_queryset(self):
+        if self.action == "list":
+            return FridgeProduct.objects.filter(is_available=True)
+        return super().get_queryset()
+
     def filter_queryset(self, queryset):
         if self.action != "list":
             self.filterset_class = None
