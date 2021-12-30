@@ -20,7 +20,7 @@ class FridgeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Fridge.objects.user_fridges(user)
+        return Fridge.objects.user_fridges(user).order_by("-created_at")
 
     def get_serializer_class(self):
         if self.action == "retrieve":

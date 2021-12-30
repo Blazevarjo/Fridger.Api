@@ -38,7 +38,7 @@ class FridgeProductViewSet(
 
     def get_queryset(self):
         if self.action == "list":
-            return FridgeProduct.objects.filter(is_available=True)
+            return FridgeProduct.objects.filter(is_available=True).order_by("-created_at")
         return super().get_queryset()
 
     def filter_queryset(self, queryset):

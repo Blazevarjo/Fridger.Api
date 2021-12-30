@@ -12,9 +12,6 @@ User = get_user_model()
 
 
 class ShoppingList(BaseModel):
-    class Meta:
-        ordering = ["-created_at"]
-
     fridge = models.ForeignKey(Fridge, related_name="shopping_list", blank=True, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
 
