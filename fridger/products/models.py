@@ -18,6 +18,7 @@ User = get_user_model()
 
 class FridgeProduct(BaseModel):
     fridge = models.ForeignKey(Fridge, related_name="fridge_product", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     name = models.CharField(max_length=60)
     producer_name = models.CharField(max_length=60, blank=True)
