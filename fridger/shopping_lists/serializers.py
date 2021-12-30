@@ -193,7 +193,7 @@ class ShoppingListSummaryUsers(serializers.ModelSerializer):
     def get_total_price(self, obj) -> Decimal:
         shopping_list = self.context["shopping_list"]
         products = obj.shopping_list_product.filter(shopping_list=shopping_list, status=ShoppingListProductStatus.BUYER)
-        return sum([product.price for product in products])
+        return sum([product.price for product in products if product.price])
 
 
 class ReadOnlySummaryProducts(serializers.ModelSerializer):
