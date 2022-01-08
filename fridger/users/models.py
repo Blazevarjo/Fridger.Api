@@ -38,10 +38,12 @@ class User(AbstractUser, BaseModel):
         friends = Friend.objects.user_friends(self)
         return friends
 
-    def food_stats(self, start_date=None, end_date=timezone.datetime.now()):
+    def food_stats(self, start_date=None, end_date=None):
         products = self.fridge_product_history
-        if start_date and end_date:
-            products = products.filter(created_at__gte=start_date, created_at__lte=end_date)
+        if start_date:
+            products = products.filter(created_at__gte=start_date)
+        if end_date:
+            products = products.filter(created_at__lte=end_date)
 
         stats = products.aggregate(
             eaten_liters=Coalesce(
