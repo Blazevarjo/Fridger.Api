@@ -12,7 +12,7 @@
         token: '{{token}}'
     }
     button.onclick = () => {
-        fetch('/api/v1/auth/users/activate/', {
+        fetch('/api/v1/auth/users/activate', {
             method: "POST",
             headers: {
             'Content-Type': 'application/json'
