@@ -35,7 +35,9 @@ class TestShoppingListsViews:
     def test_update_shopping_list_do_not_create_ownership(self):
         client = APIClient()
         client.force_authenticate(self.test_user)
-        shopping_list_ownership = baker.make("shopping_lists.ShoppingListOwnership", user=self.test_user)
+        shopping_list_ownership = baker.make(
+            "shopping_lists.ShoppingListOwnership", user=self.test_user, permission=UserPermission.ADMIN
+        )
         shopping_list_id = shopping_list_ownership.shopping_list.id
 
         data = {"name": "Moja lista zakupowa"}
@@ -76,7 +78,9 @@ class TestShoppingListsOwnershipsViews:
 
     def test_create_ownership(self):
         url = reverse("shopping-list-ownership-list")
-        shopping_list = baker.make("shopping_lists.ShoppingList")
+        shopping_list = baker.make(
+            "shopping_lists.ShoppingListOwnership", user=self.test_user, permission=UserPermission.ADMIN
+        ).shopping_list
 
         data = {
             "user": str(self.test_user.id),
@@ -90,10 +94,11 @@ class TestShoppingListsOwnershipsViews:
         assert response.status_code == 201
         assert response_id
         assert response_data == data
-        assert ShoppingListOwnership.objects.count() == 1
 
     def test_update_ownership(self):
-        shopping_list_ownership = baker.make("shopping_lists.ShoppingListOwnership", user=self.test_user)
+        shopping_list_ownership = baker.make(
+            "shopping_lists.ShoppingListOwnership", user=self.test_user, permission=UserPermission.CREATOR
+        )
 
         data = {
             "permission": UserPermission.READ,

@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import signals
+from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
 from fridger.fridges.managers import FridgeOwnershipsQuerySet, FridgeQuerySet
@@ -38,8 +40,22 @@ class FridgeOwnership(BaseModel):
     permission = models.CharField(
         _("User permission to fridger"), choices=UserPermission.choices, default=UserPermission.READ, max_length=7
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     objects = FridgeOwnershipsQuerySet.as_manager()
 
     def __str__(self) -> str:
         return f"{self.fridge.name} - {self.user.email}"
+
+
+@receiver(signals.post_delete, sender=FridgeOwnership)
+def post_delete_signal(sender, instance, **kwargs):
+    if not instance.fridge.fridge_ownership.filter(
+        permission__in=[UserPermission.CREATOR, UserPermission.ADMIN]
+    ).exists():
+        try:
+            new_admin = instance.fridge.fridge_ownership.earliest("created_at")
+            new_admin.permission = UserPermission.ADMIN
+            new_admin.save()
+        except FridgeOwnership.DoesNotExist:
+            pass

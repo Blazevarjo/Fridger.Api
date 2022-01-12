@@ -1,5 +1,6 @@
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 
 from fridger.users.serializers import BasicUserSerializer
 from fridger.utils.enums import UserPermission
@@ -9,6 +10,16 @@ from .models import Fridge, FridgeOwnership
 ###########
 # FRIDGES #
 ###########
+
+
+class BasicFridgeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fridge
+        fields = (
+            "id",
+            "name",
+        )
+        read_only_fields = fields
 
 
 class FridgeSerializer(serializers.ModelSerializer):
@@ -98,3 +109,16 @@ class CreateFridgeOwnershipSerializer(serializers.ModelSerializer):
             "fridge",
             "permission",
         )
+
+    def validate(self, attrs):
+        request_user = self.context.get("request").user
+        fridge = attrs.get("fridge")
+        try:
+            ownership = request_user.fridge_ownership.get(fridge=fridge)
+        except FridgeOwnership.DoesNotExist:
+            raise exceptions.PermissionDenied(_("User does not belong to this fridge."))
+
+        if ownership.permission not in [UserPermission.CREATOR, UserPermission.ADMIN, UserPermission.WRITE]:
+            raise exceptions.PermissionDenied(_("User does not have permission to add friend to this fridge."))
+
+        return attrs

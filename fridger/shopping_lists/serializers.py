@@ -2,9 +2,11 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 
+from fridger.fridges.serializers import BasicFridgeSerializer
 from fridger.products.models import ShoppingListProduct
 from fridger.products.serializers import (
     BasicListShoppingListProductSerializer,
@@ -39,7 +41,24 @@ class CurrentUserShoppingListOwnershipSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class ShoppingListSerializer(serializers.ModelSerializer):
+class CreateShoppingListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingList
+        fields = (
+            "id",
+            "fridge",
+            "name",
+        )
+        read_only_fields = ("id",)
+
+    def create(self, validated_data):
+        user = self.context.get("request").user
+        shopping_list = ShoppingList.objects.create(**validated_data)
+        ShoppingListOwnership.objects.create(user=user, shopping_list=shopping_list, permission=UserPermission.CREATOR)
+        return shopping_list
+
+
+class ListShoppingListSerializer(serializers.ModelSerializer):
     my_ownership = serializers.SerializerMethodField()
 
     class Meta:
@@ -52,24 +71,34 @@ class ShoppingListSerializer(serializers.ModelSerializer):
             "taken_products_count",
             "bought_products_count",
             "is_archived",
-            "is_shared",
             "my_ownership",
         )
-        read_only_fields = (
+        read_only_fields = fields
+
+    @extend_schema_field(CurrentUserShoppingListOwnershipSerializer)
+    def get_my_ownership(self, obj):
+        user = self.context["request"].user
+        ownership = obj.shopping_list_ownership.get(user=user)
+        return CurrentUserShoppingListOwnershipSerializer(ownership).data
+
+
+class DetailShoppingListSerializer(serializers.ModelSerializer):
+    my_ownership = serializers.SerializerMethodField()
+    fridge = BasicFridgeSerializer()
+
+    class Meta:
+        model = ShoppingList
+        fields = (
             "id",
+            "fridge",
+            "name",
             "free_products_count",
             "taken_products_count",
             "bought_products_count",
             "is_archived",
-            "is_shared",
             "my_ownership",
         )
-
-    def create(self, validated_data):
-        user = self.context.get("request").user
-        shopping_list = ShoppingList.objects.create(**validated_data)
-        ShoppingListOwnership.objects.create(user=user, shopping_list=shopping_list, permission=UserPermission.CREATOR)
-        return shopping_list
+        read_only_fields = fields
 
     @extend_schema_field(CurrentUserShoppingListOwnershipSerializer)
     def get_my_ownership(self, obj):
@@ -112,6 +141,19 @@ class CreateShoppingListOwnershipSerializer(serializers.ModelSerializer):
             "shopping_list",
             "permission",
         )
+
+    def validate(self, attrs):
+        request_user = self.context.get("request").user
+        shopping_list = attrs.get("shopping_list")
+        try:
+            ownership = request_user.shopping_list_ownership.get(shopping_list=shopping_list)
+        except ShoppingListOwnership.DoesNotExist:
+            raise exceptions.PermissionDenied(_("User does not belong to this shopping list."))
+
+        if ownership.permission not in [UserPermission.CREATOR, UserPermission.ADMIN, UserPermission.WRITE]:
+            raise exceptions.PermissionDenied(_("User does not have permission to add friend to this shopping list."))
+
+        return attrs
 
 
 ##########################
@@ -163,7 +205,7 @@ class ReadOnlyYourProductsSerializer(serializers.ModelSerializer):
         shopping_list_products = obj.shopping_list_product.filter(
             Q(status=ShoppingListProductStatus.TAKER) | Q(status=ShoppingListProductStatus.TAKER_MARKED),
             taken_by=user,
-        )
+        ).order_by("-updated_at")
         return BasicListShoppingListProductSerializer(shopping_list_products, many=True).data
 
 
@@ -185,9 +227,12 @@ class ShoppingListSummaryUsers(serializers.ModelSerializer):
     @extend_schema_field(BasicListShoppingListProductSerializer(many=True))
     def get_products(self, obj):
         shopping_list = self.context["shopping_list"]
-        products = obj.shopping_list_product.filter(shopping_list=shopping_list).exclude(
-            status=ShoppingListProductStatus.FREE
+        products = (
+            obj.shopping_list_product.filter(shopping_list=shopping_list)
+            .exclude(status=ShoppingListProductStatus.FREE)
+            .order_by("-updated_at")
         )
+
         return BasicListShoppingListProductSerializer(products, many=True).data
 
     def get_total_price(self, obj) -> Decimal:

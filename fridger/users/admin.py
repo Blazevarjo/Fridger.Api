@@ -49,7 +49,6 @@ class CustomUserAdmin(UserAdmin):
                     "last_name",
                     "username",
                     "mobile_token",
-                    "can_use_real_name",
                     "avatar",
                     "is_active",
                 )

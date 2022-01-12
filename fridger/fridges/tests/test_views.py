@@ -37,7 +37,7 @@ class TestFridgesViews:
     def test_update_fridge_do_not_create_ownership(self):
         client = APIClient()
         client.force_authenticate(self.test_user)
-        fridge_ownership = baker.make("fridges.FridgeOwnership", user=self.test_user)
+        fridge_ownership = baker.make("fridges.FridgeOwnership", user=self.test_user, permission=UserPermission.ADMIN)
         fridge_id = fridge_ownership.fridge.id
 
         data = {"name": "Moja lodowka2"}
@@ -111,7 +111,7 @@ class TestFridgeOwnershipsViews:
 
     def test_create_ownership(self):
         url = reverse("fridge-ownership-list")
-        fridge = baker.make("fridges.Fridge")
+        fridge = baker.make("fridges.FridgeOwnership", user=self.test_user, permission=UserPermission.ADMIN).fridge
 
         data = {
             "user": str(self.test_user.id),
@@ -125,10 +125,9 @@ class TestFridgeOwnershipsViews:
         assert response.status_code == 201
         assert response_id
         assert response_data == data
-        assert FridgeOwnership.objects.count() == 1
 
     def test_update_ownership(self):
-        fridge_ownership = baker.make("fridges.FridgeOwnership", user=self.test_user)
+        fridge_ownership = baker.make("fridges.FridgeOwnership", user=self.test_user, permission=UserPermission.ADMIN)
 
         data = {
             "permission": UserPermission.READ,

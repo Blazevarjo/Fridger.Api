@@ -5,15 +5,22 @@ from rest_framework.response import Response
 from fridger.products.serializers import ListShoppingListProductSerializer
 
 from .models import ShoppingList, ShoppingListOwnership
+from .permissions import (
+    IsOwnershipAdminOrCreator,
+    IsOwnershipCurrentUser,
+    IsShoppingListAdminOrCreator,
+)
 from .serializers import (
     BuyListOfProductsSerializer,
     CreateShoppingListOwnershipSerializer,
+    CreateShoppingListSerializer,
+    DetailShoppingListSerializer,
+    ListShoppingListSerializer,
     PartialUpdateShoppingListOwnershipSerializer,
     PartialUpdateShoppingListSerializer,
     ReadOnlyShoppingListOwnershipSerializer,
     ReadOnlySummaryProducts,
     ReadOnlyYourProductsSerializer,
-    ShoppingListSerializer,
 )
 
 
@@ -21,7 +28,7 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
     http_method_names = ["post", "get", "patch", "delete"]
 
     queryset = ShoppingList.objects.none()
-    serializer_class = ShoppingListSerializer
+    serializer_class = DetailShoppingListSerializer
     filterset_fields = ["is_archived"]
 
     def get_queryset(self):
@@ -36,7 +43,11 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "retrieve":
-            return ShoppingListSerializer
+            return DetailShoppingListSerializer
+        if self.action == "list":
+            return ListShoppingListSerializer
+        if self.action == "create":
+            return CreateShoppingListSerializer
         if self.action == "partial_update":
             return PartialUpdateShoppingListSerializer
         if self.action == "ownerships":
@@ -50,6 +61,12 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
         if self.action == "summary":
             return ReadOnlySummaryProducts
         return super().get_serializer_class()
+
+    def get_permissions(self):
+        permission_classes = self.permission_classes
+        if self.action in ["partial_update", "destroy"]:
+            permission_classes = [IsShoppingListAdminOrCreator]
+        return [permission() for permission in permission_classes]
 
     @action(detail=True, methods=["get"])
     def ownerships(self, request, pk=None):
@@ -71,7 +88,7 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"], url_path="all-products")
     def all_products(self, request, pk=None):
         shopping_list = self.get_object()
-        products = shopping_list.shopping_list_product
+        products = shopping_list.shopping_list_product.order_by("-updated_at")
 
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)
@@ -95,11 +112,19 @@ class ShoppingListOwnershipViewSet(viewsets.ModelViewSet):
     queryset = ShoppingListOwnership.objects.none()
     serializer_class = CreateShoppingListOwnershipSerializer
 
+    def get_queryset(self):
+        user = self.request.user
+        return ShoppingListOwnership.objects.user_shopping_list_ownerships(user)
+
     def get_serializer_class(self):
         if self.action == "partial_update":
             return PartialUpdateShoppingListOwnershipSerializer
         return super().get_serializer_class()
 
-    def get_queryset(self):
-        user = self.request.user
-        return ShoppingListOwnership.objects.user_shopping_list_ownerships(user)
+    def get_permissions(self):
+        permission_classes = self.permission_classes
+        if self.action == "partial_update":
+            permission_classes = [IsOwnershipAdminOrCreator]
+        if self.action == "destroy":
+            permission_classes = [IsOwnershipCurrentUser | IsOwnershipAdminOrCreator]
+        return [permission() for permission in permission_classes]

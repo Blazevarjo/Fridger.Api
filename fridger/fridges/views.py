@@ -3,6 +3,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import Fridge, FridgeOwnership
+from .permissions import (
+    IsFrigeAdminOrCreator,
+    IsOwnershipAdminOrCreator,
+    IsOwnershipCurrentUser,
+)
 from .serializers import (
     CreateFridgeOwnershipSerializer,
     FridgeDetailSerializer,
@@ -29,6 +34,12 @@ class FridgeViewSet(viewsets.ModelViewSet):
             return ReadOnlyFridgeOwnershipSerializer
         return super().get_serializer_class()
 
+    def get_permissions(self):
+        permission_classes = self.permission_classes
+        if self.action in ["update", "destroy"]:
+            permission_classes = [IsFrigeAdminOrCreator]
+        return [permission() for permission in permission_classes]
+
     @action(detail=True, methods=["get"])
     def ownerships(self, request, pk=None):
         fridge = self.get_object()
@@ -44,11 +55,19 @@ class FridgeOwnershipViewSet(viewsets.ModelViewSet):
     queryset = FridgeOwnership.objects.none()
     serializer_class = CreateFridgeOwnershipSerializer
 
+    def get_queryset(self):
+        user = self.request.user
+        return FridgeOwnership.objects.user_fridge_ownerships(user)
+
     def get_serializer_class(self):
         if self.action == "partial_update":
             return PartialUpdateFridgeOwnershipSerializer
         return super().get_serializer_class()
 
-    def get_queryset(self):
-        user = self.request.user
-        return FridgeOwnership.objects.user_fridge_ownerships(user)
+    def get_permissions(self):
+        permission_classes = self.permission_classes
+        if self.action == "partial_update":
+            permission_classes = [IsOwnershipAdminOrCreator]
+        if self.action == "destroy":
+            permission_classes = [IsOwnershipCurrentUser | IsOwnershipAdminOrCreator]
+        return [permission() for permission in permission_classes]
