@@ -88,7 +88,7 @@ class ShoppingListViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"], url_path="all-products")
     def all_products(self, request, pk=None):
         shopping_list = self.get_object()
-        products = shopping_list.shopping_list_product.order_by("-updated_at")
+        products = shopping_list.shopping_list_product.order_by("-created_at")
 
         serializer = self.get_serializer(products, many=True)
         return Response(serializer.data)

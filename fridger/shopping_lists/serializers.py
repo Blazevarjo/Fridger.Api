@@ -205,7 +205,7 @@ class ReadOnlyYourProductsSerializer(serializers.ModelSerializer):
         shopping_list_products = obj.shopping_list_product.filter(
             Q(status=ShoppingListProductStatus.TAKER) | Q(status=ShoppingListProductStatus.TAKER_MARKED),
             taken_by=user,
-        ).order_by("-updated_at")
+        ).order_by("-created_at")
         return BasicListShoppingListProductSerializer(shopping_list_products, many=True).data
 
 
@@ -230,7 +230,7 @@ class ShoppingListSummaryUsers(serializers.ModelSerializer):
         products = (
             obj.shopping_list_product.filter(shopping_list=shopping_list)
             .exclude(status=ShoppingListProductStatus.FREE)
-            .order_by("-updated_at")
+            .order_by("-created_at")
         )
 
         return BasicListShoppingListProductSerializer(products, many=True).data
