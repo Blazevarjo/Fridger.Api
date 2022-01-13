@@ -1,7 +1,9 @@
-from rest_framework import serializers
+from django.utils.translation import gettext as _
+from rest_framework import exceptions, serializers
 
+from fridger.shopping_lists.models import ShoppingListOwnership
 from fridger.users.serializers import BasicDisplayUserSerializer
-from fridger.utils.enums import ShoppingListProductStatus
+from fridger.utils.enums import ShoppingListProductStatus, UserPermission
 
 from .models import FridgeProduct, FridgeProductHistory, ShoppingListProduct
 
@@ -133,6 +135,19 @@ class CreateShoppingListProductSerializer(serializers.ModelSerializer):
             "taken_by",
             "status",
         )
+
+    def validate(self, attrs):
+        request_user = self.context.get("request").user
+        shopping_list = attrs.get("shopping_list")
+        try:
+            ownership = request_user.shopping_list_ownership.get(shopping_list=shopping_list)
+        except ShoppingListOwnership.DoesNotExist:
+            raise exceptions.PermissionDenied(_("User does not belong to this shopping list."))
+
+        if ownership.permission not in [UserPermission.CREATOR, UserPermission.ADMIN, UserPermission.WRITE]:
+            raise exceptions.PermissionDenied(_("User does not have permission to add product to this shopping list."))
+
+        return attrs
 
 
 class PartialUpdateShoppingListProductSerializer(serializers.ModelSerializer):

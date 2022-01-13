@@ -1,6 +1,8 @@
 from django_filters import rest_framework as django_filters
 from rest_framework import filters, mixins, viewsets
 
+from fridger.products.permissions import HasProductWritePermissions
+
 from .filters import FridgeProductFilter
 from .models import FridgeProduct, FridgeProductHistory, ShoppingListProduct
 from .serializers import (
@@ -87,3 +89,9 @@ class ShoppingListProductViewSet(
         elif self.action == "list":
             return ListShoppingListProductSerializer
         return super().get_serializer_class()
+
+    def get_permissions(self):
+        permission_classes = self.permission_classes
+        if self.action in ["partial_update", "destroy"]:
+            permission_classes = [HasProductWritePermissions]
+        return [permission() for permission in permission_classes]
