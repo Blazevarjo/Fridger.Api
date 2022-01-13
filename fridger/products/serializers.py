@@ -1,6 +1,7 @@
 from django.utils.translation import gettext as _
 from rest_framework import exceptions, serializers
 
+from fridger.fridges.models import FridgeOwnership
 from fridger.shopping_lists.models import ShoppingListOwnership
 from fridger.users.serializers import BasicDisplayUserSerializer
 from fridger.utils.enums import ShoppingListProductStatus, UserPermission
@@ -51,6 +52,19 @@ class CreateFridgeProductSerializer(serializers.ModelSerializer):
         product = FridgeProduct.objects.create(**validated_data)
         FridgeProductHistory.objects.create(product=product, created_by=user, **product_history)
         return product
+
+    def validate(self, attrs):
+        request_user = self.context.get("request").user
+        fridge = attrs.get("fridge")
+        try:
+            ownership = request_user.fridge_ownership.get(fridge=fridge)
+        except FridgeOwnership.DoesNotExist:
+            raise exceptions.PermissionDenied(_("User does not belong to this fridge."))
+
+        if ownership.permission not in [UserPermission.CREATOR, UserPermission.ADMIN, UserPermission.WRITE]:
+            raise exceptions.PermissionDenied(_("User does not have permission to add product to this fridge."))
+
+        return attrs
 
 
 class PartialUpdateFridgeProductSerializer(serializers.ModelSerializer):
@@ -108,6 +122,19 @@ class CreateFridgeProductHistorySerializer(serializers.ModelSerializer):
             "created_at",
             "created_by",
         )
+
+    def validate(self, attrs):
+        request_user = self.context.get("request").user
+        product = attrs.get("product")
+        try:
+            ownership = request_user.fridge_ownership.get(fridge=product.fridge)
+        except FridgeOwnership.DoesNotExist:
+            raise exceptions.PermissionDenied(_("User does not belong to this fridge."))
+
+        if ownership.permission not in [UserPermission.CREATOR, UserPermission.ADMIN, UserPermission.WRITE]:
+            raise exceptions.PermissionDenied(_("User does not have permission to add product to this fridge."))
+
+        return attrs
 
 
 ###########################
