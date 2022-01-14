@@ -7,7 +7,11 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import exceptions, serializers
 
 from fridger.fridges.serializers import BasicFridgeSerializer
-from fridger.products.models import ShoppingListProduct
+from fridger.products.models import (
+    FridgeProduct,
+    FridgeProductHistory,
+    ShoppingListProduct,
+)
 from fridger.products.serializers import (
     BasicListShoppingListProductSerializer,
     UpdatePriceShoppingListProductSerializer,
@@ -183,8 +187,20 @@ class BuyListOfProductsSerializer(serializers.ModelSerializer):
             product.status = ShoppingListProductStatus.BUYER
             modified_products.append(product)
 
+            if instance.fridge:
+                fridge_product = FridgeProduct.objects.create(
+                    fridge=instance.fridge,
+                    name=product.name,
+                    quantity_type=product.quantity_type,
+                )
+                FridgeProductHistory.objects.create(
+                    product=fridge_product,
+                    created_by=user,
+                    quantity=product.quantity,
+                )
         ShoppingListProduct.objects.bulk_update(modified_products, ["taken_by", "price", "status"])
         instance.update_is_archived()
+
         return instance
 
 

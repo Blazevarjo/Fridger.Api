@@ -219,7 +219,6 @@ class UpdatePriceShoppingListProductSerializer(serializers.ModelSerializer):
             "status",
             "taken_by",
             "name",
-            "price",
             "quantity_type",
             "quantity",
             "note",

@@ -3,8 +3,9 @@ from model_bakery import baker
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
+from fridger.products.models import FridgeProduct, ShoppingListProduct
 from fridger.shopping_lists.models import ShoppingListOwnership
-from fridger.utils.enums import UserPermission
+from fridger.utils.enums import ShoppingListProductStatus, UserPermission
 
 
 @pytest.mark.django_db
@@ -118,3 +119,60 @@ class TestShoppingListsOwnershipsViews:
 
         assert response.status_code == 204
         assert not ShoppingListOwnership.objects.filter(id=shopping_list_ownership.id).exists()
+
+
+@pytest.mark.django_db
+class TestBuyingProducts:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.user = baker.make("users.User")
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
+    def _get_detail_url(self, id):
+        return reverse("shopping-list-buy-products", args=[id])
+
+    def test_buy_products_without_tranffering_to_fridge(self):
+        shopping_list = baker.make(
+            "shopping_lists.ShoppingListOwnership",
+            user=self.user,
+            permission=UserPermission.ADMIN,
+        ).shopping_list
+        products = baker.make(
+            "products.ShoppingListProduct",
+            status=ShoppingListProductStatus.TAKER,
+            taken_by=self.user,
+            shopping_list=shopping_list,
+            price=None,
+            _quantity=5,
+        )
+
+        data = {"products": [{"id": str(product.id), "price": "2.00"} for product in products]}
+        response = self.client.post(self._get_detail_url(shopping_list.id), data=data, format="json")
+
+        assert response.status_code == 200
+        assert not FridgeProduct.objects.exists()
+        assert ShoppingListProduct.objects.filter(status=ShoppingListProductStatus.BUYER).count() == 5
+
+    def test_are_products_tranffered_to_fridge_if_bought(self):
+        fridge = baker.make("fridges.FridgeOwnership", user=self.user, permission=UserPermission.ADMIN).fridge
+        shopping_list = baker.make(
+            "shopping_lists.ShoppingListOwnership",
+            user=self.user,
+            permission=UserPermission.ADMIN,
+            shopping_list__fridge=fridge,
+        ).shopping_list
+        products = baker.make(
+            "products.ShoppingListProduct",
+            status=ShoppingListProductStatus.TAKER,
+            taken_by=self.user,
+            shopping_list=shopping_list,
+            price=None,
+            _quantity=5,
+        )
+
+        data = {"products": [{"id": str(product.id), "price": "2.00"} for product in products]}
+        response = self.client.post(self._get_detail_url(shopping_list.id), data=data, format="json")
+
+        assert response.status_code == 200
+        assert FridgeProduct.objects.count() == 5
