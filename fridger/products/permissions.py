@@ -20,6 +20,4 @@ class HasShoppingListProductWritePermissions(permissions.BasePermission):
             ownership = ShoppingListOwnership.objects.get(user=request.user, shopping_list=obj.shopping_list)
         except ShoppingListOwnership.DoesNotExist:
             return False
-        return ownership.permission in [UserPermission.ADMIN, UserPermission.CREATOR] or (
-            ownership.permission == UserPermission.WRITE and request.user == obj.user
-        )
+        return ownership.permission in [UserPermission.ADMIN, UserPermission.CREATOR, UserPermission.WRITE]
